@@ -18,7 +18,6 @@ public class Application {
         System.out.println("启动成功，Sa-Token 配置如下：" + SaManager.getConfig());
         System.out.println("swagger访问路径: http://localhost:8001/swagger-ui/index.html");
         System.out.println("onechain-onenft Application started successfully!");
-        
 	}
 
 }

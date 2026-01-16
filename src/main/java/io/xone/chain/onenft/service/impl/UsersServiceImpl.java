@@ -41,7 +41,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 			user.setWalletAddress(loginDto.getWalletAddress());
 			user.setCreatedAt(LocalDateTime.now());
 			user.setUpdatedAt(LocalDateTime.now());
-			user.setRole("user");
 			this.save(user);
 		} else {
 			user.setLastSignedIn(LocalDateTime.now());

@@ -37,12 +37,6 @@ public class Users implements Serializable {
     @TableField("email") 
     private String email;
 
-    @TableField("loginMethod")
-    private String loginMethod;
-
-    @TableField("role")
-    private String role;
-
     @TableField("createdAt")
     private LocalDateTime createdAt;
 
@@ -55,8 +49,8 @@ public class Users implements Serializable {
     @TableField("avatarUrl")
     private String avatarUrl;
 
-    @TableField("bio")
-    private String bio;
+    @TableField("description")
+    private String description;
 
     @TableField("walletAddress")
     private String walletAddress;
