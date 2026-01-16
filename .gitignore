@@ -1,0 +1,15 @@
+/.idea/
+/target/
+/logs/job/
+/output/deposit/
+/output/transfer/
+/output/withdraw/card/
+/output/withdraw/digital/
+/.settings/
+/.classpath
+/.factorypath
+/.project
+/logs/
+/tokens/
+/.DS_Store
+/bin/
