@@ -9,10 +9,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import io.xone.chain.onenft.common.ApiException;
-import io.xone.chain.onenft.dto.UserLoginDto;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.mapper.UsersMapper;
+import io.xone.chain.onenft.request.UserLoginRequest;
+import io.xone.chain.onenft.request.UserUpdateRequest;
+import io.xone.chain.onenft.resp.UserResp;
 import io.xone.chain.onenft.service.IUsersService;
 
 /**
@@ -27,18 +30,18 @@ import io.xone.chain.onenft.service.IUsersService;
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements IUsersService {
 
 	@Override
-	public String login(UserLoginDto loginDto) {
-		if (StringUtils.isEmpty(loginDto.getWalletAddress())) {
+	public String login(UserLoginRequest request) {
+		if (StringUtils.isEmpty(request.getWalletAddress())) {
 			throw new ApiException("Wallet address cannot be empty");
 		}
 
 		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
-		queryWrapper.eq(Users::getWalletAddress, loginDto.getWalletAddress());
+		queryWrapper.eq(Users::getWalletAddress, request.getWalletAddress());
 		Users user = this.getOne(queryWrapper);
 
 		if (user == null) {
 			user = new Users();
-			user.setWalletAddress(loginDto.getWalletAddress());
+			user.setWalletAddress(request.getWalletAddress());
 			user.setCreatedAt(LocalDateTime.now());
 			user.setUpdatedAt(LocalDateTime.now());
 			this.save(user);
@@ -46,7 +49,54 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 			user.setLastSignedIn(LocalDateTime.now());
 			this.updateById(user);
 		}
-		StpUtil.login(loginDto.getWalletAddress());
+
+		// Use StpUtil for login to be compatible with LoginInterceptor
+		StpUtil.login(user.getId());
 		return StpUtil.getTokenValue();
+	}
+
+	@Override
+	public boolean updateUser(UserUpdateRequest request) {
+		if (StringUtils.isEmpty(request.getWalletAddress())) {
+			throw new ApiException("Wallet address cannot be empty");
+		}
+
+		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Users::getWalletAddress, request.getWalletAddress());
+		Users user = this.getOne(queryWrapper);
+
+		if (user == null) {
+			throw new ApiException("User not found");
+		}
+
+		// Security check: Ensure the logged-in user is updating their own profile
+		long loginId = StpUtil.getLoginIdAsLong();
+		if (loginId != user.getId()) {
+			throw new ApiException("Cannot update other user's profile");
+		}
+
+		if (request.getName() != null)
+			user.setName(request.getName());
+		if (request.getEmail() != null)
+			user.setEmail(request.getEmail());
+		if (request.getTwitter() != null)
+			user.setTwitter(request.getTwitter());
+		if (request.getAvatarUrl() != null)
+			user.setAvatarUrl(request.getAvatarUrl());
+		if (request.getDescription() != null)
+			user.setDescription(request.getDescription());
+
+		user.setUpdatedAt(LocalDateTime.now());
+		return this.updateById(user);
+	}
+
+	@Override
+	public UserResp getCurrentUser() {
+		int userId = StpUtil.getLoginIdAsInt();
+		Users user = this.getById(userId);
+		if (user == null) {
+			return null;
+		}
+		return BeanUtil.copyProperties(user, UserResp.class);
 	}
 }

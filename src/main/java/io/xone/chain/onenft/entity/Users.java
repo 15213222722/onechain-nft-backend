@@ -36,6 +36,9 @@ public class Users implements Serializable {
 
     @TableField("email") 
     private String email;
+    
+    @TableField("twitter") 
+    private String twitter;
 
     @TableField("createdAt")
     private LocalDateTime createdAt;

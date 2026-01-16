@@ -1,8 +1,11 @@
 package io.xone.chain.onenft.service;
 
-import io.xone.chain.onenft.dto.UserLoginDto;
-import io.xone.chain.onenft.entity.Users;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.request.UserLoginRequest;
+import io.xone.chain.onenft.request.UserUpdateRequest;
+import io.xone.chain.onenft.resp.UserResp;
 
 /**
  * <p>
@@ -16,8 +19,21 @@ public interface IUsersService extends IService<Users> {
 
     /**
      * User Login
-     * @param loginDto Login DTO
+     * @param request
      * @return Token
      */
-    String login(UserLoginDto loginDto);
+    String login(UserLoginRequest request);
+
+    /**
+     * Update User Info
+     * @param request
+     * @return Boolean
+     */
+    boolean updateUser(UserUpdateRequest request);
+
+    /**
+     * Get Current User Info
+     * @return UserResp
+     */
+    UserResp getCurrentUser();
 }

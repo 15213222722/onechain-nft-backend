@@ -1,15 +1,18 @@
 package io.xone.chain.onenft.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.xone.chain.onenft.common.Result;
-import io.xone.chain.onenft.dto.UserLoginDto;
-import io.xone.chain.onenft.service.IUsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.xone.chain.onenft.common.Result;
+import io.xone.chain.onenft.request.UserLoginRequest;
+import io.xone.chain.onenft.request.UserUpdateRequest;
+import io.xone.chain.onenft.resp.UserResp;
+import io.xone.chain.onenft.service.IUsersService;
 
 /**
  * <p>
@@ -29,8 +32,20 @@ public class UsersController {
 
     @ApiOperation("Login with Wallet Address")
     @PostMapping("/login")
-    public Result<String> login(@RequestBody UserLoginDto loginDto) {
-        String token = usersService.login(loginDto);
+    public Result<String> login(@RequestBody UserLoginRequest request) {
+        String token = usersService.login(request);
         return Result.success(token);
+    }
+
+    @ApiOperation("Update User Info")
+    @PostMapping("/update")
+    public Result<Boolean> update(@RequestBody UserUpdateRequest request) {
+        return Result.success(usersService.updateUser(request));
+    }
+
+    @ApiOperation("Get Current User Info")
+    @PostMapping("/info")
+    public Result<UserResp> info() {
+        return Result.success(usersService.getCurrentUser());
     }
 }
