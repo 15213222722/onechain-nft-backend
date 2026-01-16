@@ -31,13 +31,10 @@ public class Users implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @TableField("openId")
-    private String openId;
-
     @TableField("name")
     private String name;
 
-    @TableField("email")
+    @TableField("email") 
     private String email;
 
     @TableField("loginMethod")
