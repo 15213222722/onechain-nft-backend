@@ -20,8 +20,7 @@ public class CodeGenerator {
 		FastAutoGenerator.create(url, username, password).globalConfig(builder -> {
 			builder.author("GitHub Copilot") // Set author
 					.enableSwagger() // Enable Swagger annotations
-					.disableOpenDir()
-					.outputDir(projectPath + "/src/main/java"); // Output directory
+					.disableOpenDir().outputDir(projectPath + "/src/main/java"); // Output directory
 		}).packageConfig(builder -> {
 			builder.parent("io.xone.chain.onenft") // Set parent package
 //					.moduleName("system") // Set module name (optional)
@@ -30,12 +29,11 @@ public class CodeGenerator {
 																														// XML
 																														// path
 		}).strategyConfig(builder -> {
-//			builder.addInclude("user", "order") // Set tables to generate (comma-separated needed)
-//					.addTablePrefix("t_", "sys_"); // Set table prefix to filter
+			builder.addInclude("nfts"); // Set tables to generate (comma-separated needed)
 
 			// Entity Strategy
 			builder.entityBuilder().enableLombok() // Enable Lombok
-					.enableTableFieldAnnotation(); // Enable field annotations
+					.enableFileOverride().enableTableFieldAnnotation(); // Enable field annotations
 
 			// Controller Strategy
 			builder.controllerBuilder().enableRestStyle(); // Enable RestController
