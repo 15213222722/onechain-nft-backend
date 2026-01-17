@@ -40,7 +40,7 @@ public class UsersController {
 
     @ApiOperation("Update User Info")
     @PostMapping("/update")
-    public Result<Boolean> update(@RequestBody UserUpdateRequest request) {
+    public Result<Boolean> update(@Validated @RequestBody UserUpdateRequest request) {
         return Result.success(usersService.updateUser(request));
     }
 
