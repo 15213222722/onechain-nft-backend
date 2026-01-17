@@ -1,5 +1,7 @@
 package io.xone.chain.onenft.request;
 
+import javax.validation.constraints.NotBlank;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -8,6 +10,7 @@ import lombok.Data;
 @ApiModel(value = "UserUpdateRequest", description = "User Update Request")
 public class UserUpdateRequest {
 
+	@NotBlank(message = "Wallet Address cannot be empty")
     @ApiModelProperty(value = "Wallet Address", required = true)
     private String walletAddress;
 

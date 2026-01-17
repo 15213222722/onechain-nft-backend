@@ -17,6 +17,7 @@ import io.xone.chain.onenft.request.UserLoginRequest;
 import io.xone.chain.onenft.request.UserUpdateRequest;
 import io.xone.chain.onenft.resp.UserResp;
 import io.xone.chain.onenft.service.IUsersService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -27,14 +28,11 @@ import io.xone.chain.onenft.service.IUsersService;
  * @since 2026-01-16
  */
 @Service
+@Slf4j
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements IUsersService {
 
 	@Override
 	public String login(UserLoginRequest request) {
-		if (StringUtils.isEmpty(request.getWalletAddress())) {
-			throw new ApiException("Wallet address cannot be empty");
-		}
-
 		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(Users::getWalletAddress, request.getWalletAddress());
 		Users user = this.getOne(queryWrapper);
@@ -51,7 +49,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		}
 
 		// Use StpUtil for login to be compatible with LoginInterceptor
-		StpUtil.login(user.getId());
+		StpUtil.login(user.getId(), request.getLoginDevice());
 		return StpUtil.getTokenValue();
 	}
 
@@ -70,8 +68,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		}
 
 		// Security check: Ensure the logged-in user is updating their own profile
-		long loginId = StpUtil.getLoginIdAsLong();
-		if (loginId != user.getId()) {
+		int userId = StpUtil.getLoginIdAsInt();
+		if (userId != user.getId()) {
 			throw new ApiException("Cannot update other user's profile");
 		}
 
@@ -93,7 +91,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 	@Override
 	public UserResp getCurrentUser() {
 		int userId = StpUtil.getLoginIdAsInt();
-		Users user = this.getById(userId);
+		log.info("Getting current user info for userId: {}", userId);
+		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Users::getId, userId);
+		Users user = this.getOne(queryWrapper);
 		if (user == null) {
 			return null;
 		}

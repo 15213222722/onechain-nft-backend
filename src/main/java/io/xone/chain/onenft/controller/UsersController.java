@@ -1,6 +1,7 @@
 package io.xone.chain.onenft.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ public class UsersController {
 
     @ApiOperation("Login with Wallet Address")
     @PostMapping("/login")
-    public Result<String> login(@RequestBody UserLoginRequest request) {
+    public Result<String> login(@RequestBody @Validated UserLoginRequest request) {
         String token = usersService.login(request);
         return Result.success(token);
     }
