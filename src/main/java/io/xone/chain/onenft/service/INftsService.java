@@ -21,4 +21,11 @@ public interface INftsService extends IService<Nfts> {
      * @return Paginated NFTs
      */
     IPage<Nfts> searchNfts(NftSearchRequest request);
+
+    /**
+     * Get NFT by Object ID
+     * @param objectId Object ID
+     * @return NFT Details
+     */
+    Nfts getByObjectId(String objectId);
 }

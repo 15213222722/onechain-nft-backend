@@ -54,12 +54,11 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		wrapper.orderByDesc(Nfts::getUpdatedAt);
 		return this.page(page, wrapper);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
+	@Override
+	public Nfts getByObjectId(String objectId) {
+		LambdaQueryWrapper<Nfts> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(Nfts::getObjectId, objectId);
+		return this.getOne(wrapper);
+	}
 }
