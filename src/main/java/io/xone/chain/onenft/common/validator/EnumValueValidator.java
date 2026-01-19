@@ -5,6 +5,7 @@ import org.springframework.util.StringUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,15 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) {
             return true; // Use @NotNull or @NotBlank for null checks
+        }
+
+        if (value instanceof Collection) {
+            for (Object item : (Collection<?>) value) {
+                if (item != null && !acceptedValues.contains(item.toString())) {
+                    return false;
+                }
+            }
+            return true;
         }
         
         if (value instanceof String) {
