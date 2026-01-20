@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import cn.hutool.core.bean.BeanUtil;
-import io.xone.chain.onenft.entity.Collections;
 import io.xone.chain.onenft.entity.Nfts;
 import io.xone.chain.onenft.entity.Series;
 import io.xone.chain.onenft.entity.Users;
