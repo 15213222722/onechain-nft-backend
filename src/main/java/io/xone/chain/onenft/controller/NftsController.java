@@ -43,12 +43,9 @@ public class NftsController {
     }
 
     @ApiOperation("Get NFT Detail by ObjectID")
-    @GetMapping("/{objectId}")
+    @PostMapping("/{objectId}")
     public Result<NftResp> getDetail(@PathVariable String objectId) {
-        Nfts nfts = nftsService.getByObjectId(objectId);
-        if (nfts == null) {
-            return Result.success(null);
-        }
-        return Result.success(BeanUtil.copyProperties(nfts, NftResp.class));
+        NftResp nftResp = nftsService.getNftDetail(objectId);
+        return Result.success(nftResp);
     }
 }

@@ -10,7 +10,7 @@ public class CodeGenerator {
 
 	public static void main(String[] args) {
 		// 1. Database Configuration
-		String url = "jdbc:mysql://localhost:3306/onenft?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+		String url = "jdbc:mysql://localhost:3306/nft_new?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
 		String username = "root";
 		String password = "abcd.1234";
 
@@ -29,7 +29,7 @@ public class CodeGenerator {
 																														// XML
 																														// path
 		}).strategyConfig(builder -> {
-			builder.addInclude("nfts"); // Set tables to generate (comma-separated needed)
+//			builder.addInclude("series"); // Set tables to generate (comma-separated needed)
 
 			// Entity Strategy
 			builder.entityBuilder().enableLombok() // Enable Lombok

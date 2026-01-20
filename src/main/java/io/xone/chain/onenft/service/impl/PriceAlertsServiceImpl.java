@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 价格提醒表 服务实现类
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 @Service
 public class PriceAlertsServiceImpl extends ServiceImpl<PriceAlertsMapper, PriceAlerts> implements IPriceAlertsService {

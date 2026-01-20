@@ -1,6 +1,6 @@
 package io.xone.chain.onenft.service;
 
-import io.xone.chain.onenft.entity.BridgeTransfers;
+import io.xone.chain.onenft.entity.Series;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-19
  */
-public interface IBridgeTransfersService extends IService<BridgeTransfers> {
+public interface ISeriesService extends IService<Series> {
 
 }

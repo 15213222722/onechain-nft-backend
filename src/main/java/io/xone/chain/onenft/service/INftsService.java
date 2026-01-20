@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.xone.chain.onenft.entity.Nfts;
 import com.baomidou.mybatisplus.extension.service.IService;
 import io.xone.chain.onenft.request.NftSearchRequest;
+import io.xone.chain.onenft.resp.NftResp;
 
 /**
  * <p>
@@ -28,4 +29,11 @@ public interface INftsService extends IService<Nfts> {
      * @return NFT Details
      */
     Nfts getByObjectId(String objectId);
+
+    /**
+     * Get NFT Detail with enriched info
+     * @param objectId Object ID
+     * @return NFT Response
+     */
+    NftResp getNftDetail(String objectId);
 }

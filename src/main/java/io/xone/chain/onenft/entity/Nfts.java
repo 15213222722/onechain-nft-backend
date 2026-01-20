@@ -14,16 +14,16 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ * nft表
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-17
+ * @since 2026-01-20
  */
 @Getter
 @Setter
 @TableName("nfts")
-@ApiModel(value = "Nfts对象", description = "")
+@ApiModel(value = "Nfts对象", description = "nft表")
 public class Nfts implements Serializable {
 
     private static final long serialVersionUID = 1L;

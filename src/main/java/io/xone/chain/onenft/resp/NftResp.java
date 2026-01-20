@@ -29,8 +29,14 @@ public class NftResp {
     @ApiModelProperty("Owner ID")
     private Integer ownerId;
 
+    @ApiModelProperty("Owner Name")
+    private String ownerName;
+
     @ApiModelProperty("Creator ID")
     private Integer creatorId;
+
+    @ApiModelProperty("Creator Name")
+    private String creatorName;
 
     @ApiModelProperty("Attributes")
     private String attributes;
@@ -52,6 +58,9 @@ public class NftResp {
 
     @ApiModelProperty("Series ID")
     private Integer seriesId;
+
+    @ApiModelProperty("Series Name")
+    private String seriesName;
 
     @ApiModelProperty("Auction Start Price")
     private BigDecimal auctionStartPrice;

@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- *  服务类
+ * 活动跟踪表 服务类
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 public interface IActivitiesService extends IService<Activities> {
 

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 成就定义表 服务实现类
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 @Service
 public class AchievementDefinitionsServiceImpl extends ServiceImpl<AchievementDefinitionsMapper, AchievementDefinitions> implements IAchievementDefinitionsService {

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 竞价记录跟踪表 服务实现类
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 @Service
 public class NftBidsServiceImpl extends ServiceImpl<NftBidsMapper, NftBids> implements INftBidsService {

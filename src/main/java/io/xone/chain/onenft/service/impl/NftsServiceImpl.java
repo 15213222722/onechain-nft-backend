@@ -1,16 +1,26 @@
 package io.xone.chain.onenft.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import cn.hutool.core.bean.BeanUtil;
+import io.xone.chain.onenft.entity.Collections;
 import io.xone.chain.onenft.entity.Nfts;
+import io.xone.chain.onenft.entity.Series;
+import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.enums.ListingStatusEnum;
 import io.xone.chain.onenft.mapper.NftsMapper;
+import io.xone.chain.onenft.mapper.SeriesMapper;
+import io.xone.chain.onenft.mapper.UsersMapper;
 import io.xone.chain.onenft.request.NftSearchRequest;
+import io.xone.chain.onenft.resp.NftResp;
 import io.xone.chain.onenft.service.INftsService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -22,6 +32,12 @@ import org.springframework.util.StringUtils;
  */
 @Service
 public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements INftsService {
+
+	@Autowired
+	private UsersMapper usersMapper;
+
+	@Autowired
+	private SeriesMapper seriesMapper;
 
 	@Override
 	public IPage<Nfts> searchNfts(NftSearchRequest request) {
@@ -60,5 +76,40 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		LambdaQueryWrapper<Nfts> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(Nfts::getObjectId, objectId);
 		return this.getOne(wrapper);
+	}
+
+	@Override
+	public NftResp getNftDetail(String objectId) {
+		Nfts nfts = this.getByObjectId(objectId);
+		if (nfts == null) {
+			return null;
+		}
+		NftResp resp = BeanUtil.copyProperties(nfts, NftResp.class);
+
+		// Creator
+		if (nfts.getCreatorId() != null) {
+			Users creator = usersMapper.selectById(nfts.getCreatorId());
+			if (creator != null) {
+				resp.setCreatorName(StringUtils.isEmpty(creator.getName()) ? creator.getWalletAddress() : creator.getName());
+			}
+		}
+
+		// Owner
+		if (nfts.getOwnerId() != null) {
+			Users owner = usersMapper.selectById(nfts.getOwnerId());
+			if (owner != null) {
+				resp.setOwnerName(StringUtils.isEmpty(owner.getName()) ? owner.getWalletAddress() : owner.getName());
+			}
+		}
+
+		// Series
+		if (nfts.getSeriesId() != null) {
+			Series series = seriesMapper.selectById(nfts.getSeriesId());
+			if (series != null) {
+				resp.setSeriesName(series.getDescription());
+			}
+		}
+
+		return resp;
 	}
 }

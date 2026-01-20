@@ -13,16 +13,16 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ * 收藏表
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 @Getter
 @Setter
 @TableName("collections")
-@ApiModel(value = "Collections对象", description = "")
+@ApiModel(value = "Collections对象", description = "收藏表")
 public class Collections implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,35 +30,13 @@ public class Collections implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @TableField("name")
-    private String name;
+    @ApiModelProperty("用户id")
+    @TableField("userId")
+    private Integer userId;
 
-    @TableField("description")
-    private String description;
-
-    @TableField("coverImage")
-    private String coverImage;
-
-    @TableField("creatorId")
-    private Integer creatorId;
-
-    @TableField("contractAddress")
-    private String contractAddress;
-
-    @TableField("floorPrice")
-    private String floorPrice;
-
-    @TableField("totalVolume")
-    private String totalVolume;
-
-    @TableField("itemCount")
-    private Integer itemCount;
-
-    @TableField("ownerCount")
-    private Integer ownerCount;
-
-    @TableField("isVerified")
-    private Boolean isVerified;
+    @ApiModelProperty("nft对象id")
+    @TableField("nftObjectId")
+    private String nftObjectId;
 
     @TableField("createdAt")
     private LocalDateTime createdAt;

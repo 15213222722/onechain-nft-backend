@@ -1,6 +1,6 @@
 package io.xone.chain.onenft.mapper;
 
-import io.xone.chain.onenft.entity.NftFractions;
+import io.xone.chain.onenft.entity.Series;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-19
  */
-public interface NftFractionsMapper extends BaseMapper<NftFractions> {
+public interface SeriesMapper extends BaseMapper<Series> {
 
 }

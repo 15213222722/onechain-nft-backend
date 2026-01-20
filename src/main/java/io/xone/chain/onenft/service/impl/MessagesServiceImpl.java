@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 消息表 服务实现类
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-16
+ * @since 2026-01-20
  */
 @Service
 public class MessagesServiceImpl extends ServiceImpl<MessagesMapper, Messages> implements IMessagesService {
