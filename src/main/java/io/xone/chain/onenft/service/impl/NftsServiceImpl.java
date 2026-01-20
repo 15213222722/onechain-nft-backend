@@ -21,6 +21,9 @@ import io.xone.chain.onenft.mapper.UsersMapper;
 import io.xone.chain.onenft.request.NftSearchRequest;
 import io.xone.chain.onenft.resp.NftResp;
 import io.xone.chain.onenft.service.INftsService;
+import org.springframework.context.i18n.LocaleContextHolder;
+
+import java.util.Locale;
 
 /**
  * <p>
@@ -106,7 +109,14 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		if (nfts.getSeriesId() != null) {
 			Series series = seriesMapper.selectById(nfts.getSeriesId());
 			if (series != null) {
-				resp.setSeriesName(series.getDescription());
+				Locale locale = LocaleContextHolder.getLocale();
+				boolean isChinese = Locale.CHINESE.getLanguage().equals(locale.getLanguage()) || Locale.SIMPLIFIED_CHINESE.getLanguage().equals(locale.getLanguage());
+				// Assuming simplified chinese is the primary target for Chinese
+				if (isChinese) {
+					resp.setSeriesName(series.getZhDesc());
+				} else {
+					resp.setSeriesName(series.getEnDesc());
+				}
 			}
 		}
 

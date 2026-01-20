@@ -2,9 +2,15 @@ package io.xone.chain.onenft.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+
+import java.util.Locale;
 
 import cn.dev33.satoken.fun.strategy.SaCorsHandleFunction;
 import cn.dev33.satoken.router.SaHttpMethod;
@@ -13,6 +19,31 @@ import io.xone.chain.onenft.common.LoginInterceptor;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Bean
+    LocaleResolver localeResolver() {
+        CookieLocaleResolver localeResolver = new CookieLocaleResolver();
+        localeResolver.setCookieName("lang");
+        localeResolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
+        localeResolver.setCookieMaxAge(3600 * 24 * 30); // 30 days
+        return localeResolver;
+    }
+
+    @Bean
+    ResourceBundleMessageSource messageSource() {
+        ResourceBundleMessageSource source = new ResourceBundleMessageSource();
+        source.setBasenames("i18n/messages");
+        source.setDefaultEncoding("UTF-8");
+        source.setUseCodeAsDefaultMessage(true);
+        return source;
+    }
+
+    @Bean
+    LocaleChangeInterceptor localeChangeInterceptor() {
+        LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+        interceptor.setParamName("lang");
+        return interceptor;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -49,15 +80,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(localeChangeInterceptor());
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/users/login",
-                        "/swagger-ui/**",
+                        "/users/register",
+                        "/doc.html",
                         "/swagger-resources/**",
-                        "/v3/api-docs",
                         "/webjars/**",
-                        "/doc.html"
+                        "/v2/api-docs",
+                        "/swagger-ui.html",
+                        "/error"
                 );
     }
 }
