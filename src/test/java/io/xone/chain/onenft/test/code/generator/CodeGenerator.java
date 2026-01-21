@@ -29,7 +29,7 @@ public class CodeGenerator {
 																														// XML
 																														// path
 		}).strategyConfig(builder -> {
-//			builder.addInclude("series"); // Set tables to generate (comma-separated needed)
+			builder.addInclude("contract_whitelist"); // Set tables to generate (comma-separated needed)
 
 			// Entity Strategy
 			builder.entityBuilder().enableLombok() // Enable Lombok

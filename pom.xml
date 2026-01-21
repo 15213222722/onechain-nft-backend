@@ -192,6 +192,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.xone.chain</groupId>
+			<artifactId>onechain-sdk-java</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 

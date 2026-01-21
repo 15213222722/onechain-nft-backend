@@ -11,3 +11,12 @@ spring:
 logging:
   level:
     root: info
+
+onechain:
+  rpc-url: https://rpc-testnet.onelabs.cc:443
+  faucet-url: https://faucet-testnet.onelabs.cc
+  keystore-path: /Users/gdan/.one/one_config/one.keystore
+  contract:
+    package-id: 0xfcd27acec6619e268b91fe93e97c40b8dbdd47f8560a9d33fec2811007b863b9
+    module-name: market_kiosk
+    event-struct: NFTSold
