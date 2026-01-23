@@ -14,7 +14,7 @@ public class OneChainConfig {
     }
 
     @Bean
-    public OneChain oneChain() {
+    OneChain oneChain() {
         return new OneChain(
             properties.getRpcUrl(),
             properties.getFaucetUrl(),

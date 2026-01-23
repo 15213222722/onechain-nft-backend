@@ -17,6 +17,6 @@ public class OneChainProperties {
     public static class Contract {
         private String packageId;
         private String moduleName;
-        private String eventStruct;
+        private String functionName;
     }
 }

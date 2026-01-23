@@ -4,13 +4,16 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import cn.dev33.satoken.SaManager;
+import io.xone.chain.onenft.config.OneChainConfig;
 
 @EnableScheduling
 @SpringBootApplication
 @ComponentScan(basePackages = "io.xone.chain.onenft")
+@Import(OneChainConfig.class)
 @MapperScan("io.xone.chain.onenft.mapper")
 public class Application {
 	
