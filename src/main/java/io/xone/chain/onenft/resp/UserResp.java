@@ -1,10 +1,10 @@
 package io.xone.chain.onenft.resp;
 
+import java.time.LocalDateTime;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 @ApiModel(value = "User Response", description = "User Information Response")
@@ -18,6 +18,12 @@ public class UserResp {
 
     @ApiModelProperty(value = "Name")
     private String name;
+    
+    @ApiModelProperty("kioskId")
+    private String kioskId;
+    
+    @ApiModelProperty("capId")
+    private String capId;
 
     @ApiModelProperty(value = "Email")
     private String email;

@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.xone.chain.onenft.common.Result;
 import io.xone.chain.onenft.entity.Nfts;
+import io.xone.chain.onenft.request.MyKioskNftRequest;
 import io.xone.chain.onenft.request.NftSearchRequest;
 import io.xone.chain.onenft.resp.NftResp;
 import io.xone.chain.onenft.service.INftsService;
@@ -49,4 +50,15 @@ public class NftsController {
         NftResp nftResp = nftsService.getNftDetail(objectId);
         return Result.success(nftResp);
     }
+    
+    
+    
+    @ApiOperation("Get My kiosk NFTs")
+    @PostMapping("/myKioskNfts")
+    public Result<IPage<NftResp>> myKioskNfts(@RequestBody MyKioskNftRequest request) {
+    	IPage<Nfts> page = nftsService.myKioskNfts(request);
+        IPage<NftResp> respPage = page.convert(nfts -> BeanUtil.copyProperties(nfts, NftResp.class));
+        return Result.success(respPage);
+    }
+    
 }

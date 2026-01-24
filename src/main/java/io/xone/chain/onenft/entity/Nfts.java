@@ -18,7 +18,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-20
+ * @since 2026-01-24
  */
 @Getter
 @Setter
@@ -52,12 +52,8 @@ public class Nfts implements Serializable {
     private String imageUrl;
 
     @ApiModelProperty("拥有者")
-    @TableField("ownerId")
-    private Integer ownerId;
-
-    @ApiModelProperty("创建者")
-    @TableField("creatorId")
-    private Integer creatorId;
+    @TableField("kioskId")
+    private String kioskId;
 
     @ApiModelProperty("属性")
     @TableField("attributes")
@@ -116,4 +112,16 @@ public class Nfts implements Serializable {
     @ApiModelProperty("所属系列")
     @TableField("seriesId")
     private Integer seriesId;
+
+    @ApiModelProperty("创建者")
+    @TableField("creatorAddress")
+    private String creatorAddress;
+
+    @ApiModelProperty("拥有者")
+    @TableField("ownerAddress")
+    private String ownerAddress;
+
+    @ApiModelProperty("NFT 类型")
+    @TableField("nftType")
+    private String nftType;
 }

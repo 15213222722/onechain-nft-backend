@@ -1,15 +1,21 @@
 package io.xone.chain.onenft.service.impl;
 
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import io.xone.chain.onenft.entity.Nfts;
 import io.xone.chain.onenft.entity.Series;
 import io.xone.chain.onenft.entity.Users;
@@ -17,12 +23,10 @@ import io.xone.chain.onenft.enums.ListingStatusEnum;
 import io.xone.chain.onenft.mapper.NftsMapper;
 import io.xone.chain.onenft.mapper.SeriesMapper;
 import io.xone.chain.onenft.mapper.UsersMapper;
+import io.xone.chain.onenft.request.MyKioskNftRequest;
 import io.xone.chain.onenft.request.NftSearchRequest;
 import io.xone.chain.onenft.resp.NftResp;
 import io.xone.chain.onenft.service.INftsService;
-import org.springframework.context.i18n.LocaleContextHolder;
-
-import java.util.Locale;
 
 /**
  * <p>
@@ -89,18 +93,22 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		NftResp resp = BeanUtil.copyProperties(nfts, NftResp.class);
 
 		// Creator
-		if (nfts.getCreatorId() != null) {
-			Users creator = usersMapper.selectById(nfts.getCreatorId());
-			if (creator != null) {
-				resp.setCreatorName(StringUtils.isEmpty(creator.getName()) ? creator.getWalletAddress() : creator.getName());
+		if (StrUtil.isNotBlank(nfts.getCreatorAddress())) {
+			QueryWrapper<Users> userQuery = new QueryWrapper<>();
+			userQuery.eq("walletAddress", nfts.getCreatorAddress());
+			Users user = usersMapper.selectOne(userQuery);
+			if (user != null) {
+				resp.setCreatorName(StringUtils.isEmpty(user.getName()) ? user.getWalletAddress() : user.getName());
 			}
 		}
 
 		// Owner
-		if (nfts.getOwnerId() != null) {
-			Users owner = usersMapper.selectById(nfts.getOwnerId());
-			if (owner != null) {
-				resp.setOwnerName(StringUtils.isEmpty(owner.getName()) ? owner.getWalletAddress() : owner.getName());
+		if (nfts.getOwnerAddress() != null) {
+			QueryWrapper<Users> userQuery = new QueryWrapper<>();
+			userQuery.eq("walletAddress", nfts.getOwnerAddress());
+			Users user = usersMapper.selectOne(userQuery);
+			if (user != null) {
+				resp.setOwnerName(StringUtils.isEmpty(user.getName()) ? user.getWalletAddress() : user.getName());
 			}
 		}
 
@@ -109,7 +117,8 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 			Series series = seriesMapper.selectById(nfts.getSeriesId());
 			if (series != null) {
 				Locale locale = LocaleContextHolder.getLocale();
-				boolean isChinese = Locale.CHINESE.getLanguage().equals(locale.getLanguage()) || Locale.SIMPLIFIED_CHINESE.getLanguage().equals(locale.getLanguage());
+				boolean isChinese = Locale.CHINESE.getLanguage().equals(locale.getLanguage())
+						|| Locale.SIMPLIFIED_CHINESE.getLanguage().equals(locale.getLanguage());
 				// Assuming simplified chinese is the primary target for Chinese
 				if (isChinese) {
 					resp.setSeriesName(series.getZhDesc());
@@ -120,5 +129,38 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		}
 
 		return resp;
+	}
+
+	@Override
+	public IPage<Nfts> myKioskNfts(MyKioskNftRequest request) {
+		int userId = StpUtil.getLoginIdAsInt();
+		Users user;
+		if (StrUtil.isNotBlank(request.getWalletAddress())) {
+			QueryWrapper<Users> userQuery = new QueryWrapper<>();
+			userQuery.eq("walletAddress", request.getWalletAddress());
+			user = usersMapper.selectOne(userQuery);
+		} else {
+			user = usersMapper.selectById(userId);
+		}
+		Page<Nfts> page = new Page<>(request.getCurrent(), request.getSize());
+		if (user != null) {
+			LambdaQueryWrapper<Nfts> wrapper = new LambdaQueryWrapper<>();
+			boolean hasCondition = false;
+			if (StrUtil.isNotBlank(user.getKioskId())) {
+				wrapper.eq(Nfts::getKioskId, user.getKioskId());
+				hasCondition = true;
+			}
+			if (StrUtil.isNotBlank(user.getWalletAddress())) {
+				if (hasCondition) {
+					wrapper.or();
+				}
+				wrapper.eq(Nfts::getOwnerAddress, user.getWalletAddress());
+				hasCondition = true;
+			}
+			if (hasCondition) {
+				return this.page(page, wrapper);
+			}
+		}
+		return page;
 	}
 }

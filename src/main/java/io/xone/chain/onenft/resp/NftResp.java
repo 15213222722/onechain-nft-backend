@@ -1,11 +1,11 @@
 package io.xone.chain.onenft.resp;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @ApiModel(value = "NFT Response", description = "NFT Information Response")
@@ -19,6 +19,9 @@ public class NftResp {
 
     @ApiModelProperty("Name")
     private String name;
+    
+    @ApiModelProperty("拥有者")
+    private String kioskId;
 
     @ApiModelProperty("Description")
     private String description;
@@ -79,4 +82,13 @@ public class NftResp {
 
     @ApiModelProperty("Updated At")
     private LocalDateTime updatedAt;
+    
+    @ApiModelProperty("创建者")
+    private String creatorAddress;
+
+    @ApiModelProperty("拥有者")
+    private String ownerAddress;
+    
+    @ApiModelProperty("NFT 类型")
+    private String nftType;
 }

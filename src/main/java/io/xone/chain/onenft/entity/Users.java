@@ -17,7 +17,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-20
+ * @since 2026-01-23
  */
 @Getter
 @Setter
@@ -37,6 +37,14 @@ public class Users implements Serializable {
     @ApiModelProperty("钱包地址")
     @TableField("walletAddress")
     private String walletAddress;
+
+    @ApiModelProperty("capId")
+    @TableField("capId")
+    private String capId;
+
+    @ApiModelProperty("市场id")
+    @TableField("kioskId")
+    private String kioskId;
 
     @ApiModelProperty("email")
     @TableField("email")

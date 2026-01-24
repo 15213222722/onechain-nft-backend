@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IKioskCreateEventService extends IService<KioskCreateEvent> {
 
+    void handleKioskCreatedEvent(String txHash, String walletAddress, String eventType, String kioskId, String capId, Long timestampMs);
+
 }

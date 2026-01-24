@@ -1,8 +1,10 @@
 package io.xone.chain.onenft.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.xone.chain.onenft.entity.Nfts;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import io.xone.chain.onenft.entity.Nfts;
+import io.xone.chain.onenft.request.MyKioskNftRequest;
 import io.xone.chain.onenft.request.NftSearchRequest;
 import io.xone.chain.onenft.resp.NftResp;
 
@@ -36,4 +38,10 @@ public interface INftsService extends IService<Nfts> {
      * @return NFT Response
      */
     NftResp getNftDetail(String objectId);
+
+    /**
+     * Get My NFTs
+     * @return Paginated NFTs
+     */
+	IPage<Nfts> myKioskNfts(MyKioskNftRequest request);
 }

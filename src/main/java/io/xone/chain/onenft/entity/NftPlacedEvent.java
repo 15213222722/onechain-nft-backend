@@ -13,17 +13,17 @@ import lombok.Setter;
 
 /**
  * <p>
- * kiosk创建
+ * nft放入市场事件
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-23
+ * @since 2026-01-24
  */
 @Getter
 @Setter
-@TableName("kiosk_create_event")
-@ApiModel(value = "KioskCreateEvent对象", description = "kiosk创建")
-public class KioskCreateEvent implements Serializable {
+@TableName("nft_placed__event")
+@ApiModel(value = "NftPlacedEvent对象", description = "nft放入市场事件")
+public class NftPlacedEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,13 +34,13 @@ public class KioskCreateEvent implements Serializable {
     @TableField("walletAddress")
     private String walletAddress;
 
+    @ApiModelProperty("nft对象id")
+    @TableField("nftObjectId")
+    private String nftObjectId;
+
     @ApiModelProperty("市场id")
     @TableField("kioskId")
     private String kioskId;
-
-    @ApiModelProperty("capId")
-    @TableField("capId")
-    private String capId;
 
     @ApiModelProperty("hash")
     @TableField("txHash")
