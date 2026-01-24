@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import io.xone.chain.onenft.entity.NftTakenEvent;
+import io.xone.chain.onenft.entity.Nfts;
 import io.xone.chain.onenft.mapper.NftTakenEventMapper;
 import io.xone.chain.onenft.service.INftTakenEventService;
 import io.xone.chain.onenft.service.INftsService;
@@ -44,11 +45,11 @@ public class NftTakenEventServiceImpl extends ServiceImpl<NftTakenEventMapper, N
             return;
         }
 
-    	// Update NFT using common service
-        nftsService.syncNftFromChain(nftObjectId, nft -> {
-            nft.setIsListed(false);
-            nft.setOwnerAddress(walletAddress);
-        });
+    	// Delete NFT when taken
+        QueryWrapper<Nfts> nftQuery = new QueryWrapper<>();
+        nftQuery.eq("objectId", nftObjectId);
+        nftsService.remove(nftQuery);
+        log.info("Removed NFT from market (Taken): {}", nftObjectId);
         
         // Check duplicate
         QueryWrapper<NftTakenEvent> query = new QueryWrapper<>();
