@@ -8,6 +8,8 @@ import io.xone.chain.onenft.request.MyKioskNftRequest;
 import io.xone.chain.onenft.request.NftSearchRequest;
 import io.xone.chain.onenft.resp.NftResp;
 
+import java.util.function.Consumer;
+
 /**
  * <p>
  *  服务类
@@ -44,4 +46,6 @@ public interface INftsService extends IService<Nfts> {
      * @return Paginated NFTs
      */
 	IPage<Nfts> myKioskNfts(MyKioskNftRequest request);
+
+	Nfts syncNftFromChain(String nftObjectId, Consumer<Nfts> customizer);
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * nft放入市场事件
+ * 已处理事件表
  * </p>
  *
  * @author GitHub Copilot
@@ -21,38 +21,23 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("nft_placed_event")
-@ApiModel(value = "NftPlacedEvent对象", description = "nft放入市场事件")
-public class NftPlacedEvent implements Serializable {
+@TableName("processed_events")
+@ApiModel(value = "ProcessedEvent对象", description = "已处理事件表")
+public class ProcessedEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty("钱包地址")
-    @TableField("walletAddress")
-    private String walletAddress;
-
-    @ApiModelProperty("nft对象id")
-    @TableField("nftObjectId")
-    private String nftObjectId;
-
-    @ApiModelProperty("市场id")
-    @TableField("kioskId")
-    private String kioskId;
-
     @ApiModelProperty("hash")
     @TableField("txHash")
     private String txHash;
 
-    @ApiModelProperty("事件type")
+    @ApiModelProperty("事件类型")
     @TableField("eventType")
     private String eventType;
 
-    @TableField("createdAt")
-    private LocalDateTime createdAt;
-
-    @TableField("updatedAt")
-    private LocalDateTime updatedAt;
+    @TableField("processedAt")
+    private LocalDateTime processedAt;
 }

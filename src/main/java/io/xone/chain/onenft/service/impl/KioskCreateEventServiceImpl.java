@@ -14,6 +14,7 @@ import io.xone.chain.onenft.entity.KioskCreateEvent;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.mapper.KioskCreateEventMapper;
 import io.xone.chain.onenft.service.IKioskCreateEventService;
+import io.xone.chain.onenft.service.IProcessedEventService;
 import io.xone.chain.onenft.service.IUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +33,16 @@ import lombok.extern.slf4j.Slf4j;
 public class KioskCreateEventServiceImpl extends ServiceImpl<KioskCreateEventMapper, KioskCreateEvent> implements IKioskCreateEventService {
 
     private final IUsersService usersService;
+    private final IProcessedEventService processedEventService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleKioskCreatedEvent(String txHash, String walletAddress, String eventType, String kioskId, String capId, Long timestampMs) {
+        if (processedEventService.isProcessed(txHash, eventType)) {
+            log.info("Event already processed: {}", txHash);
+            return;
+        }
+
     	 // update user kioskId
         updateUserKioskId(walletAddress, kioskId, capId);
     	// Check duplicate
@@ -59,7 +66,7 @@ public class KioskCreateEventServiceImpl extends ServiceImpl<KioskCreateEventMap
         this.save(entity);
         log.info("Saved KioskCreated event: {}", txHash);
 
-       
+        processedEventService.markProcessed(txHash, eventType);
     }
 
     private void updateUserKioskId(String walletAddress, String kioskId, String capId) {

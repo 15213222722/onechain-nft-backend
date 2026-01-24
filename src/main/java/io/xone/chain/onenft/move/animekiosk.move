@@ -76,6 +76,7 @@ public struct NFTSold has copy, drop {
 
 public struct KioskCreated has copy, drop {
   kiosk_id: ID,
+  cap_id: ID,
 }
 
 public struct MARKET_KIOSK has drop {}
@@ -106,10 +107,11 @@ fun init(otw: MARKET_KIOSK, ctx: &mut TxContext) {
 public fun create_kiosk(ctx: &mut TxContext) {
   let (kiosk, cap) = kiosk::new(ctx);
   let kiosk_id = object::id(&kiosk);
+  let cap_id = object::id(&cap);
   transfer::public_share_object(kiosk);
   transfer::public_transfer(cap, tx_context::sender(ctx));
   // 新增事件：KioskCreated
-  event::emit(KioskCreated { kiosk_id });
+  event::emit(KioskCreated { kiosk_id, cap_id });
 }
 
 /*********************************
@@ -153,11 +155,12 @@ public fun take_nft<T: key + store>(
   kiosk: &mut Kiosk,
   cap: &KioskOwnerCap,
   nft_id: ID,
-): T {
+  ctx: &mut TxContext,
+) {
   let nft = kiosk::take<T>(kiosk, cap, nft_id);
+  transfer::public_transfer(nft, tx_context::sender(ctx));
   let kiosk_id = object::id(kiosk);
   event::emit(NFTTaken { nft_id, kiosk_id });
-  nft
 }
 
 // List NFT for sale
