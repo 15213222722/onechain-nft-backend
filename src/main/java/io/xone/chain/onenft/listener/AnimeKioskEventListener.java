@@ -42,9 +42,9 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		subscribeKioskPlace();
 		subscribeKioskCreated();
 		subscribeNFTTaken();
+		subscribeKioskPlace();
 	}
 
 	@Scheduled(fixedDelay = 5000)
@@ -125,7 +125,7 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 				capId = data.get("cap_id").toString();
 			}
 		}
-
+		log.info("Handling KioskCreated event: txHash={}, walletAddress={}, kioskId={}, capId={}", txHash, walletAddress, kioskId, capId);
 		kioskCreateEventService.handleKioskCreatedEvent(txHash, walletAddress, eventType, kioskId, capId, timestampMs);
 	}
 

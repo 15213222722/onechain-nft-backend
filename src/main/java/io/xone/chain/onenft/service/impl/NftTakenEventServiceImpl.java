@@ -38,7 +38,7 @@ public class NftTakenEventServiceImpl extends ServiceImpl<NftTakenEventMapper, N
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleNFTTakenEvent(String txHash, String walletAddress, String eventType, String kioskId, String nftObjectId, Long timestampMs) {
-        // Check processed
+    	// Check processed
         if (processedEventService.isProcessed(txHash, eventType)) {
             log.info("Event already processed: {}", txHash);
             return;

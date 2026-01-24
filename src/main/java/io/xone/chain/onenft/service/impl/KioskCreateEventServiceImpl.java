@@ -38,7 +38,8 @@ public class KioskCreateEventServiceImpl extends ServiceImpl<KioskCreateEventMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleKioskCreatedEvent(String txHash, String walletAddress, String eventType, String kioskId, String capId, Long timestampMs) {
-        if (processedEventService.isProcessed(txHash, eventType)) {
+		 // Check processed
+    	if (processedEventService.isProcessed(txHash, eventType)) {
             log.info("Event already processed: {}", txHash);
             return;
         }

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import io.onechain.OneChain;
 import io.xone.chain.onenft.entity.NftPlacedEvent;
 import io.xone.chain.onenft.mapper.NftPlacedEventMapper;
 import io.xone.chain.onenft.service.INftPlacedEventService;
@@ -35,8 +34,6 @@ public class NftPlacedEventServiceImpl extends ServiceImpl<NftPlacedEventMapper,
 
 	private final INftsService nftsService;
 
-	private final OneChain oneChain;
-	
 	private final IProcessedEventService processedEventService;
 
 	@Override
