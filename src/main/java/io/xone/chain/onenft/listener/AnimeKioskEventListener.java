@@ -1,5 +1,6 @@
 package io.xone.chain.onenft.listener;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.springframework.boot.CommandLineRunner;
@@ -10,8 +11,10 @@ import io.onechain.OneChain;
 import io.onechain.models.events.EventFilter;
 import io.onechain.models.events.OneChainEvent;
 import io.onechain.models.events.PaginatedEvents;
+import io.xone.chain.onenft.common.utils.ChainUtils;
 import io.xone.chain.onenft.config.OneChainProperties;
 import io.xone.chain.onenft.service.IKioskCreateEventService;
+import io.xone.chain.onenft.service.INftListingEventService;
 import io.xone.chain.onenft.service.INftPlacedEventService;
 import io.xone.chain.onenft.service.INftTakenEventService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +33,17 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 
 	private final INftTakenEventService nftTakenEventService;
 
+	private final INftListingEventService nftListingEventService;
+
 	public AnimeKioskEventListener(OneChain oneChain, OneChainProperties properties,
 			IKioskCreateEventService kioskCreateEventService, INftPlacedEventService nftPlacedEventService,
-			INftTakenEventService nftTakenEventService) {
+			INftTakenEventService nftTakenEventService, INftListingEventService nftListingEventService) {
 		this.oneChain = oneChain;
 		this.properties = properties;
 		this.kioskCreateEventService = kioskCreateEventService;
 		this.nftPlacedEventService = nftPlacedEventService;
 		this.nftTakenEventService = nftTakenEventService;
+		this.nftListingEventService = nftListingEventService;
 	}
 
 	@Override
@@ -45,6 +51,7 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 		subscribeKioskCreated();
 		subscribeNFTTaken();
 		subscribeKioskPlace();
+		subscribeKioskList();
 	}
 
 	@Scheduled(fixedDelay = 5000)
@@ -60,6 +67,11 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 	@Scheduled(fixedDelay = 5000)
 	private void subscribeNFTTaken() {
 		fetchAndProcessEvents("NFTTaken", this::handleNFTTakenEvent);
+	}
+
+	@Scheduled(fixedDelay = 5000)
+	private void subscribeKioskList() {
+		fetchAndProcessEvents("NFTListed", this::handleNFTListingEvent);
 	}
 
 	private void fetchAndProcessEvents(String eventSuffix, java.util.function.Consumer<OneChainEvent> handler) {
@@ -149,6 +161,32 @@ public class AnimeKioskEventListener implements CommandLineRunner {
 		}
 
 		nftTakenEventService.handleNFTTakenEvent(txHash, walletAddress, eventType, kioskId, nftId, timestampMs);
+	}
+
+	private void handleNFTListingEvent(OneChainEvent event) {
+		String txHash = event.getId().getTxDigest();
+		String walletAddress = event.getSender();
+		String eventType = event.getType();
+		String kioskId = null;
+		String nftId = null;
+		BigDecimal price = null;
+		Long timestampMs = event.getTimestampMs() != null ? event.getTimestampMs().longValue() : null;
+
+		if (event.getParsedJson() != null && event.getParsedJson() instanceof Map) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> data = (Map<String, Object>) event.getParsedJson();
+			if (data.containsKey("kiosk_id")) {
+				kioskId = data.get("kiosk_id").toString();
+			}
+			if (data.containsKey("nft_id")) {
+				nftId = data.get("nft_id").toString();
+			}
+			if (data.containsKey("price")) {
+				price = ChainUtils.parsePrice(data.get("price"));
+			}
+		}
+
+		nftListingEventService.handleNFTListingEvent(txHash, walletAddress, eventType, kioskId, nftId, price, timestampMs);
 	}
 
 }

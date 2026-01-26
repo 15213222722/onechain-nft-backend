@@ -72,14 +72,14 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 			wrapper.in(Nfts::getRarityType, request.getRarityType());
 		}
 
-		if (!StringUtils.isEmpty(request.getStatus())) {
-			try {
-				ListingStatusEnum statusEnum = ListingStatusEnum.valueOf(request.getStatus());
-				wrapper.eq(Nfts::getIsListed, statusEnum.getCode());
-			} catch (IllegalArgumentException e) {
-				// Should be handled by validation, but safe ignore
-			}
-		}
+//		if (!StringUtils.isEmpty(request.getStatus())) {
+//			try {
+//				ListingStatusEnum statusEnum = ListingStatusEnum.valueOf(request.getStatus());
+//				wrapper.eq(Nfts::getIsListed, statusEnum.getCode());
+//			} catch (IllegalArgumentException e) {
+//				// Should be handled by validation, but safe ignore
+//			}
+//		}
 
 		if (request.getMinPrice() != null) {
 			wrapper.ge(Nfts::getListingPrice, request.getMinPrice());
@@ -87,6 +87,7 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		if (request.getMaxPrice() != null) {
 			wrapper.le(Nfts::getListingPrice, request.getMaxPrice());
 		}
+		wrapper.eq(Nfts::getIsListed, ListingStatusEnum.LISTED.getCode());
 		wrapper.orderByDesc(Nfts::getUpdatedAt);
 		return this.page(page, wrapper);
 	}
