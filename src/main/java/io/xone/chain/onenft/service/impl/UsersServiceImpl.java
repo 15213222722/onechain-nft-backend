@@ -13,6 +13,7 @@ import cn.hutool.core.bean.BeanUtil;
 import io.xone.chain.onenft.common.ApiException;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.mapper.UsersMapper;
+import io.xone.chain.onenft.request.UserInfoRequest;
 import io.xone.chain.onenft.request.UserLoginRequest;
 import io.xone.chain.onenft.request.UserUpdateRequest;
 import io.xone.chain.onenft.resp.UserResp;
@@ -94,6 +95,17 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		log.info("Getting current user info for userId: {}", userId);
 		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(Users::getId, userId);
+		Users user = this.getOne(queryWrapper);
+		if (user == null) {
+			return null;
+		}
+		return BeanUtil.copyProperties(user, UserResp.class);
+	}
+
+	@Override
+	public UserResp getUserInfo(UserInfoRequest request) {
+		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Users::getWalletAddress, request.getWalletAddress());
 		Users user = this.getOne(queryWrapper);
 		if (user == null) {
 			return null;

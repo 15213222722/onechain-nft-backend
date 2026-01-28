@@ -1,12 +1,15 @@
 package io.xone.chain.onenft.entity;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -72,7 +75,7 @@ public class Nfts implements Serializable {
     private Boolean isListed;
 
     @ApiModelProperty("上架价格")
-    @TableField("listingPrice")
+    @TableField(value = "listingPrice",updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal listingPrice;
 
     @ApiModelProperty("分类：art:数字艺术；pfp：PFP/头像；assets：游戏资产；collectibles：收藏品；utility：实用型；media：音视频；others：其他")
@@ -80,19 +83,19 @@ public class Nfts implements Serializable {
     private String category;
 
     @ApiModelProperty("竞拍开始价格")
-    @TableField("auctionStartPrice")
+    @TableField(value = "auctionStartPrice",updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal auctionStartPrice;
 
     @ApiModelProperty("竞拍最新价格")
-    @TableField("auctionEndPrice")
+    @TableField(value = "auctionEndPrice",updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal auctionEndPrice;
 
     @ApiModelProperty("竞拍开始时间")
-    @TableField("auctionStartTime")
+    @TableField(value = "auctionStartTime",updateStrategy = FieldStrategy.IGNORED)
     private LocalDateTime auctionStartTime;
-
+    
     @ApiModelProperty("竞拍结束时间")
-    @TableField("auctionEndTime")
+    @TableField(value = "auctionEndTime",updateStrategy = FieldStrategy.IGNORED)
     private LocalDateTime auctionEndTime;
 
     @ApiModelProperty("铸造hash")

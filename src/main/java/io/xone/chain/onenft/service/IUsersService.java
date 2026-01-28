@@ -3,6 +3,7 @@ package io.xone.chain.onenft.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.request.UserInfoRequest;
 import io.xone.chain.onenft.request.UserLoginRequest;
 import io.xone.chain.onenft.request.UserUpdateRequest;
 import io.xone.chain.onenft.resp.UserResp;
@@ -36,4 +37,11 @@ public interface IUsersService extends IService<Users> {
      * @return UserResp
      */
     UserResp getCurrentUser();
+
+    /**
+     * Get User Info
+     * @param request
+     * @return UserResp
+     */
+	UserResp getUserInfo(UserInfoRequest request);
 }

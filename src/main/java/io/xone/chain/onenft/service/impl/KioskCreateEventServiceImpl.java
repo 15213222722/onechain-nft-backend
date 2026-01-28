@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import io.xone.chain.onenft.entity.KioskCreateEvent;
-import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.mapper.KioskCreateEventMapper;
 import io.xone.chain.onenft.service.IKioskCreateEventService;
 import io.xone.chain.onenft.service.IProcessedEventService;
@@ -71,26 +70,6 @@ public class KioskCreateEventServiceImpl extends ServiceImpl<KioskCreateEventMap
     }
 
     private void updateUserKioskId(String walletAddress, String kioskId, String capId) {
-    	log.info("Updating user kioskId: walletAddress={}, kioskId={}", walletAddress, kioskId);
-        if (walletAddress == null || kioskId == null) {
-            return;
-        }
-
-        QueryWrapper<Users> userQuery = new QueryWrapper<>();
-        userQuery.eq("walletAddress", walletAddress);
-        Users user = usersService.getOne(userQuery);
-
-        if (user != null) {
-            if (user.getKioskId() == null || user.getKioskId().trim().isEmpty()) {
-                user.setKioskId(kioskId);
-                user.setCapId(capId);
-                boolean updated = usersService.updateById(user);
-                if (updated) {
-                    log.info("Updated kioskId for user: {}", walletAddress);
-                } else {
-                    log.error("Failed to update kioskId for user: {}", walletAddress);
-                }
-            }
-        }
+    	
     }
 }

@@ -29,7 +29,7 @@ public class CodeGenerator {
 																														// XML
 																														// path
 		}).strategyConfig(builder -> {
-			builder.addInclude("nft_listing_event"); // Set tables to generate (comma-separated needed)
+//			builder.addInclude("nft_delist_event"); // Set tables to generate (comma-separated needed)
 
 			// Entity Strategy
 			builder.entityBuilder().enableLombok() // Enable Lombok

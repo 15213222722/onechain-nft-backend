@@ -17,7 +17,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-23
+ * @since 2026-01-28
  */
 @Getter
 @Setter
@@ -28,34 +28,26 @@ public class Users implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     @ApiModelProperty("用户名")
     @TableField("name")
     private String name;
 
     @ApiModelProperty("钱包地址")
-    @TableField("walletAddress")
+    @TableField("wallet_address")
     private String walletAddress;
-
-    @ApiModelProperty("capId")
-    @TableField("capId")
-    private String capId;
-
-    @ApiModelProperty("市场id")
-    @TableField("kioskId")
-    private String kioskId;
 
     @ApiModelProperty("email")
     @TableField("email")
     private String email;
 
     @ApiModelProperty("上次登录时间")
-    @TableField("lastSignedIn")
+    @TableField("last_signed_in")
     private LocalDateTime lastSignedIn;
 
     @ApiModelProperty("头像")
-    @TableField("avatarUrl")
+    @TableField("avatar_url")
     private String avatarUrl;
 
     @ApiModelProperty("个人简介")
@@ -66,9 +58,9 @@ public class Users implements Serializable {
     @TableField("twitter")
     private String twitter;
 
-    @TableField("createdAt")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @TableField("updatedAt")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 }

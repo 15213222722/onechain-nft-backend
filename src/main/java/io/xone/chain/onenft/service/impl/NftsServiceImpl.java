@@ -161,10 +161,7 @@ public class NftsServiceImpl extends ServiceImpl<NftsMapper, Nfts> implements IN
 		if (user != null) {
 			LambdaQueryWrapper<Nfts> wrapper = new LambdaQueryWrapper<>();
 			boolean hasCondition = false;
-			if (StrUtil.isNotBlank(user.getKioskId())) {
-				wrapper.eq(Nfts::getKioskId, user.getKioskId());
-				hasCondition = true;
-			}
+		
 			if (StrUtil.isNotBlank(user.getWalletAddress())) {
 				if (hasCondition) {
 					wrapper.or();

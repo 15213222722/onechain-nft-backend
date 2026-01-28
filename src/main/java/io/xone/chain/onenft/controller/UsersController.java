@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.xone.chain.onenft.common.Result;
+import io.xone.chain.onenft.request.UserInfoRequest;
 import io.xone.chain.onenft.request.UserLoginRequest;
 import io.xone.chain.onenft.request.UserUpdateRequest;
 import io.xone.chain.onenft.resp.UserResp;
@@ -43,10 +44,16 @@ public class UsersController {
     public Result<Boolean> update(@Validated @RequestBody UserUpdateRequest request) {
         return Result.success(usersService.updateUser(request));
     }
+    
+    @ApiOperation("Get Current User Info")
+    @PostMapping("/getCurrentUser")
+    public Result<UserResp> getCurrentUser() {
+        return Result.success(usersService.getCurrentUser());
+    }
 
     @ApiOperation("Get Current User Info")
     @PostMapping("/info")
-    public Result<UserResp> info() {
-        return Result.success(usersService.getCurrentUser());
+    public Result<UserResp> info(@Validated @RequestBody UserInfoRequest request) {
+        return Result.success(usersService.getUserInfo(request));
     }
 }
