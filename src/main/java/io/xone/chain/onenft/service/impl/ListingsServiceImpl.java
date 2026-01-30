@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import io.onechain.OneChain;
 import io.xone.chain.onenft.common.entity.ListingNft;
 import io.xone.chain.onenft.common.service.OneChainService;
@@ -119,14 +120,6 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		if (listing != null) {
 			listing.setStatus(1); // Filled
 			this.updateById(listing);
-
-			// Update NFT status
-			nftsService.syncNftFromChain(listing.getNftObjectId(), nft -> {
-				nft.setIsListed(false);
-				nft.setListingPrice(null);
-				// Owner should be updated by Trades handling or standard NFT sync?
-				// Standard NFT sync usually fetches fields. Owner is on the object.
-			});
 		}
 	}
 
@@ -146,18 +139,19 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		wrapper.eq(Listings::getStatus, 0); // ACTIVE
 		wrapper.orderByDesc(Listings::getCreatedAt);
 		IPage<Listings> listingPage = this.page(page, wrapper);
-		List<String> nftObjectIds = listingPage.getRecords().stream().map(Listings::getNftObjectId)
+		List<String> listingNftObjectIds = listingPage.getRecords().stream().map(Listings::getListingObjectId)
 				.collect(Collectors.toList());
-		if (CollUtil.isEmpty(nftObjectIds)) {
+		if (CollUtil.isEmpty(listingNftObjectIds)) {
 			Page<ListingResp> resultPage = new Page<>(request.getCurrent(), request.getSize(), listingPage.getTotal());
 			resultPage.setRecords(List.of());
 			return resultPage;
 
 		}
-		List<ListingNft> queryListingNfts = oneChainService.queryListingNfts(nftObjectIds);
+		List<ListingNft> queryListingNfts = oneChainService.queryMyListingNfts(listingNftObjectIds);
+		log.info("Queried listing NFTs from OneChain: {}", JSONUtil.toJsonStr(queryListingNfts));
 		List<ListingResp> collect = listingPage.getRecords().stream().map(listing -> {
 			ListingResp copyProperties = BeanUtil.copyProperties(listing, ListingResp.class);
-			queryListingNfts.stream().filter(nft -> nft.getObjectId().equals(listing.getNftObjectId())).findFirst()
+			queryListingNfts.stream().filter(lisingNft -> lisingNft.getObjectId().equals(listing.getNftObjectId())).findFirst()
 					.ifPresent(nft -> {
 						copyProperties.setListingNft(nft);
 					});
