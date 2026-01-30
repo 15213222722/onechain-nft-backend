@@ -17,5 +17,5 @@ onechain:
   faucet-url: https://faucet-testnet.onelabs.cc
   keystore-path: /Users/gdan/.one/one_config/one.keystore
   contract:
-    package-id: 0xe57c3fbc038af7bdf8531c729a47359756e05dcfde9705ba830d72f02e04e953
+    package-id: 0x42dc9ce22d70bb33aa404b56cad4630d5730250b66e5d1fcb85fcd1cb5e10f25
     module-name: market

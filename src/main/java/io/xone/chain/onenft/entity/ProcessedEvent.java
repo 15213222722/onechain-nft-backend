@@ -31,13 +31,20 @@ public class ProcessedEvent implements Serializable {
     private Integer id;
 
     @ApiModelProperty("hash")
-    @TableField("txHash")
+    @TableField("tx_hash")
     private String txHash;
 
     @ApiModelProperty("事件类型")
-    @TableField("eventType")
+    @TableField("event_type")
     private String eventType;
 
-    @TableField("processedAt")
+    @TableField("processed_at")
     private LocalDateTime processedAt;
+    
+    @TableField("created_at")
+    private LocalDateTime createdAt;
+    
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
+    
 }

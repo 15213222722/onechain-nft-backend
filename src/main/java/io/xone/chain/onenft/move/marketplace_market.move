@@ -64,7 +64,11 @@ public struct ListingCreated has copy, drop {
   listing_id: ID,
   owner: address,
   nft_id: ID,
+  nft_type: TypeName,
+  price: option::Option<u64>,
   listing_type: u8,
+  expected_nft_type: option::Option<TypeName>,
+  coin_type: option::Option<TypeName>,
 }
 
 /// Event emitted when a listing is filled (either purchase or swap).
@@ -159,7 +163,11 @@ public fun create_sale_listing<T: key + store, C>(
     listing_id,
     owner: sender,
     nft_id,
+    nft_type: type_name::with_original_ids<T>(),
+    price: option::some(price),
     listing_type: LISTING_SALE,
+    expected_nft_type: option::none(),
+    coin_type: option::some(type_name::with_original_ids<C>())
   });
 }
 
@@ -262,7 +270,11 @@ public fun create_swap_listing<T: key + store, U: key + store>(
     listing_id,
     owner: sender,
     nft_id,
+    nft_type: type_name::with_original_ids<T>(),
+    price: option::none(),
     listing_type: LISTING_SWAP,
+    expected_nft_type: option::some(type_name::with_original_ids<U>()),
+    coin_type: option::none(),
   });
 }
 

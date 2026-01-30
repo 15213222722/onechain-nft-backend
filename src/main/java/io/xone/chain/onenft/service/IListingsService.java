@@ -1,7 +1,11 @@
 package io.xone.chain.onenft.service;
 
-import io.xone.chain.onenft.entity.Listings;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import io.xone.chain.onenft.entity.Listings;
+import io.xone.chain.onenft.request.MyListingNftRequest;
+import io.xone.chain.onenft.resp.ListingResp;
 
 /**
  * <p>
@@ -13,10 +17,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IListingsService extends IService<Listings> {
 
-    void handleListingCreated(String txDigest, String listingObjectId, String owner, String nftObjectId, Integer listingType, 
-            Long timestampMs);
+    void handleListingCreated(String txDigest, String listingObjectId, String owner, String nftObjectId, String nftType, Integer listingType, 
+            Long price, String coinType, String expectedNftType, Long timestampMs);
     
     void handleListingCancelled(String txDigest, String listingObjectId, Long timestampMs);
 
     void handleListingFilled(String listingObjectId);
+
+    IPage<ListingResp> getMyListings(MyListingNftRequest request);
 }

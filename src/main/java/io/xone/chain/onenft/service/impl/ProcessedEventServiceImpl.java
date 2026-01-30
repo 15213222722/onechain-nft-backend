@@ -24,8 +24,8 @@ public class ProcessedEventServiceImpl extends ServiceImpl<ProcessedEventMapper,
     @Override
     public boolean isProcessed(String txHash, String eventType) {
         QueryWrapper<ProcessedEvent> query = new QueryWrapper<>();
-        query.eq("txHash", txHash);
-        query.eq("eventType", eventType);
+        query.eq("tx_hash", txHash);
+        query.eq("event_type", eventType);
         return this.count(query) > 0;
     }
 

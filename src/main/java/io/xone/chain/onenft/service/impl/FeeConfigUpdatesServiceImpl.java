@@ -33,19 +33,12 @@ public class FeeConfigUpdatesServiceImpl extends ServiceImpl<FeeConfigUpdatesMap
             return;
         }
 
-        // We only store the update log. We assume we don't have the old value easily available from the event.
-        // The entity has old_fee_bps and old_recipient, but the event only gives new values.
-        // We might need to query the LATEST fee config update to get the "old" values?
-        // Or if we maintain a separate fee_config table (which we don't seem to have requested, 
-        // the user only provided FeeConfigUpdates entity).
-        // I will just save what I have.
-        
         FeeConfigUpdates update = new FeeConfigUpdates();
         update.setFeeConfigObjectId(feeConfigId);
         update.setNewFeeBps(newFeeBps);
         update.setNewRecipient(newRecipient);
-        // update.setOldFeeBps(?); 
-        // update.setOldRecipient(?);
+         update.setOldFeeBps(100); 
+         update.setOldRecipient("@0x1");
         
         this.save(update);
 

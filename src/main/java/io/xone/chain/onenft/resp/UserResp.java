@@ -2,6 +2,9 @@ package io.xone.chain.onenft.resp;
 
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,39 +13,31 @@ import lombok.Data;
 @ApiModel(value = "User Response", description = "User Information Response")
 public class UserResp {
 
-    @ApiModelProperty(value = "User ID")
-    private Integer id;
+	@TableId(value = "id", type = IdType.AUTO)
+	private Long id;
 
-    @ApiModelProperty(value = "Wallet Address")
-    private String walletAddress;
+	@ApiModelProperty("用户名")
+	private String name;
 
-    @ApiModelProperty(value = "Name")
-    private String name;
-    
-    @ApiModelProperty("kioskId")
-    private String kioskId;
-    
-    @ApiModelProperty("capId")
-    private String capId;
+	@ApiModelProperty("钱包地址")
+	private String walletAddress;
 
-    @ApiModelProperty(value = "Email")
-    private String email;
+	@ApiModelProperty("email")
+	private String email;
 
-    @ApiModelProperty(value = "Twitter")
-    private String twitter;
+	@ApiModelProperty("上次登录时间")
+	private LocalDateTime lastSignedIn;
 
-    @ApiModelProperty(value = "Avatar URL")
-    private String avatarUrl;
+	@ApiModelProperty("头像")
+	private String avatarUrl;
 
-    @ApiModelProperty(value = "Description")
-    private String description;
+	@ApiModelProperty("个人简介")
+	private String description;
 
-    @ApiModelProperty(value = "Role")
-    private String role;
+	@ApiModelProperty("twitter")
+	private String twitter;
 
-    @ApiModelProperty(value = "Created At")
-    private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 
-    @ApiModelProperty(value = "Updated At")
-    private LocalDateTime updatedAt;
+	private LocalDateTime updatedAt;
 }

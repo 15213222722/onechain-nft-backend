@@ -6,6 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.onechain.OneChain;
 import io.onechain.models.events.EventFilter;
 import io.onechain.models.events.OneChainEvent;
@@ -88,14 +90,32 @@ public class MarketPlaceEventListener implements CommandLineRunner {
     private void handleListingCreated(OneChainEvent event) {
         if (isInvalid(event)) return;
         Map<String, Object> data = (Map<String, Object>) event.getParsedJson();
-        
         String listingId = getString(data, "listing_id");
         String owner = getString(data, "owner");
         String nftId = getString(data, "nft_id");
+        
+        JSONObject nftTypeJson = getJsonObject(data, "nft_type");
+        String nftType = nftTypeJson.getStr("name");
         Integer listingType = getInt(data, "listing_type");
+        
+        Long price = getLong(data, "price");
+        
+        JSONObject expectedNftTypeJson = getJsonObject(data, "expected_nft_type");
+        String expectedNftType = null;
+        if(expectedNftTypeJson != null) {
+        	expectedNftType = expectedNftTypeJson.getStr("name");
+        }
+        
+        JSONObject coinTypeJson = getJsonObject(data, "coin_type");
+        String coinType = null;
+        if(coinTypeJson != null) {
+        	coinType = coinTypeJson.getJSONObject("fields").getStr("name");
+        }
+        
         Long timestamp = event.getTimestampMs().longValue();
         
-        listingsService.handleListingCreated(event.getId().getTxDigest(), listingId, owner, nftId, listingType, timestamp);
+        listingsService.handleListingCreated(event.getId().getTxDigest(), listingId, owner, nftId, nftType, listingType, 
+                price, coinType, expectedNftType, timestamp);
     }
     
     private void handleListingSaleFilled(OneChainEvent event) {
@@ -153,6 +173,11 @@ public class MarketPlaceEventListener implements CommandLineRunner {
 
     private boolean isInvalid(OneChainEvent event) {
         return event.getParsedJson() == null || !(event.getParsedJson() instanceof Map);
+    }
+    
+    private JSONObject getJsonObject(Map<String, Object> map, String key) {
+        Object val = map.get(key);
+        return val != null ? JSONUtil.parseObj(val) : null;
     }
     
     private String getString(Map<String, Object> map, String key) {

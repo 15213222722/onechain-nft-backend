@@ -1,7 +1,18 @@
 package io.xone.chain.onenft.controller;
 
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import io.xone.chain.onenft.common.Result;
+import io.xone.chain.onenft.request.MyListingNftRequest;
+import io.xone.chain.onenft.resp.ListingResp;
+import io.xone.chain.onenft.service.IListingsService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * <p>
@@ -13,6 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/listings")
+@RequiredArgsConstructor
 public class ListingsController {
 
+	private final IListingsService listingsService;
+
+	@PostMapping("/nfts")
+	public Result<IPage<ListingResp>> getMyListings(@Validated @RequestBody MyListingNftRequest request) {
+		return Result.success(listingsService.getMyListings(request));
+	}
 }
