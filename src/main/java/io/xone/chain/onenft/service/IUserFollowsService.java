@@ -13,4 +13,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserFollowsService extends IService<UserFollows> {
 
+    /**
+     * toggle follow
+     * @param followerId
+     * @param followingId
+     * @return true if followed, false if unfollowed
+     */
+    boolean toggleFollow(Integer followerId, Integer followingId);
 }

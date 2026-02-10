@@ -1,18 +1,25 @@
 package io.xone.chain.onenft.service.impl;
 
-import io.xone.chain.onenft.entity.Trades;
-import io.xone.chain.onenft.mapper.TradesMapper;
-import io.xone.chain.onenft.service.ITradesService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import io.xone.chain.onenft.service.IProcessedEventService;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import io.xone.chain.onenft.entity.Trades;
+import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
+import io.xone.chain.onenft.enums.ActivityTypeEnum;
+import io.xone.chain.onenft.event.ActivityEvent;
+import io.xone.chain.onenft.mapper.TradesMapper;
 import io.xone.chain.onenft.service.IListingsService;
+import io.xone.chain.onenft.service.IProcessedEventService;
+import io.xone.chain.onenft.service.ITradesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.time.LocalDateTime;
-import java.time.Instant;
-import java.time.ZoneId;
 
 /**
  * <p>
@@ -29,6 +36,7 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
 
     private final IProcessedEventService processedEventService;
     private final IListingsService listingsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -60,6 +68,19 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
         listingsService.handleListingFilled(listingObjectId);
 
         processedEventService.markProcessed(txDigest, "ListingSaleFilled" + listingObjectId);
+
+        eventPublisher.publishEvent(ActivityEvent.builder(this)
+                .activityType(ActivityTypeEnum.NFT_SOLD)
+                .actorAddress(lister) // Seller
+                .targetType(ActivityTargetTypeEnum.NFT)
+                .targetId(nftId)
+                .addMetadata("buyer", taker)
+                .addMetadata("seller", lister)
+                .addMetadata("price", paymentAmount)
+                .addMetadata("listing_object_id", listingObjectId)
+                .txDigest(txDigest)
+                .occurredAt(timestampMs)
+                .build());
     }
 
     @Override
@@ -89,5 +110,17 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
         listingsService.handleListingFilled(listingObjectId);
 
         processedEventService.markProcessed(txDigest, "ListingSwapFilled" + listingObjectId);
+
+        eventPublisher.publishEvent(ActivityEvent.builder(this)
+                .activityType(ActivityTypeEnum.NFT_SWAPPED)
+                .actorAddress(lister)
+                .targetType(ActivityTargetTypeEnum.NFT)
+                .targetId(nftIdOut) // NFT going out
+                .addMetadata("buyer", taker)
+                .addMetadata("swappedWith", nftIdIn)
+                .addMetadata("description", String.format("Swap: %s <-> %s", nftIdOut, nftIdIn))
+                .txDigest(txDigest)
+                .occurredAt(timestampMs)
+                .build());
     }
 }

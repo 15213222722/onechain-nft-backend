@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +20,14 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import io.onechain.OneChain;
 import io.xone.chain.onenft.common.entity.ListingNft;
 import io.xone.chain.onenft.common.service.OneChainService;
 import io.xone.chain.onenft.entity.Listings;
 import io.xone.chain.onenft.entity.NftListingEvent;
 import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
+import io.xone.chain.onenft.enums.ActivityTypeEnum;
+import io.xone.chain.onenft.event.ActivityEvent;
 import io.xone.chain.onenft.mapper.ListingsMapper;
 import io.xone.chain.onenft.mapper.UsersMapper;
 import io.xone.chain.onenft.request.ListingQueryRequest;
@@ -55,6 +58,8 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 	private final INftListingEventService nftListingEventService;
 
 	private final OneChainService oneChainService;
+	
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -98,9 +103,23 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			listing.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestampMs), ZoneId.systemDefault()));
 		}
 		this.saveOrUpdate(listing);
-		processedEventService.markProcessed(txDigest, "ListingCreated" + listingObjectId);
-	}
 
+        processedEventService.markProcessed(txDigest, "ListingCreated" + listingObjectId);
+
+        eventPublisher.publishEvent(ActivityEvent.builder(this)
+                .activityType(ActivityTypeEnum.NFT_LISTED)
+                .actorAddress(owner)
+                .targetType(ActivityTargetTypeEnum.NFT)
+                .targetId(nftObjectId)
+                .txDigest(txDigest)
+                .addMetadata("price", price)
+                .addMetadata("listing_object_id", listingObjectId)
+                .addMetadata("coin_type", coinType)
+                .addMetadata("expected_nft_type", expectedNftType)
+                .occurredAt(timestampMs)
+                .build());
+	}
+	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void handleListingCancelled(String txDigest, String listingObjectId, Long timestampMs) {
@@ -109,15 +128,29 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			return;
 		}
 
-		QueryWrapper<Listings> query = new QueryWrapper<>();
-		query.eq("listing_object_id", listingObjectId);
-		Listings listing = this.getOne(query);
-
+		Listings listing = this.getOne(new LambdaQueryWrapper<Listings>().eq(Listings::getListingObjectId, listingObjectId));
 		if (listing != null) {
 			listing.setStatus(2); // Cancelled
-			listing.setCancelTxDigest(txDigest);
-			listing.setCancelTimestampMs(timestampMs);
+			// We might want to clear price or set to invalid? No, keep history.
 			this.updateById(listing);
+			
+			eventPublisher.publishEvent(ActivityEvent.builder(this)
+					.activityType(ActivityTypeEnum.NFT_UNLISTED)
+					.actorAddress(listing.getOwnerAddress())
+					.targetType(ActivityTargetTypeEnum.NFT)
+					.targetId(listing.getNftObjectId())
+					.addMetadata("listing_object_id", listingObjectId)
+					.txDigest(txDigest)
+					.occurredAt(timestampMs)
+					.build());
+		} else {
+			 log.warn("Listing cancelled but not found in DB: {}", listingObjectId);
+			 // Even if not found (maybe sync issue), we handle processing
+             // Without actor, we can't create a valid UserActivity usually required by constraint?
+             // Or we just publish what we can?
+             // Since we modified ActivityEvent to require actorAddress implicitly for UserActivities mapping (nullable?),
+             // we will skip activity if significant data missing or pass null.
+             // But let's just not publish if we don't have owner info.
 		}
 
 		processedEventService.markProcessed(txDigest, "ListingCancelled" + listingObjectId);

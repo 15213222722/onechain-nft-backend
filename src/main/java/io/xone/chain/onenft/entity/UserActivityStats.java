@@ -16,13 +16,13 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-28
+ * @since 2026-02-10
  */
 @Getter
 @Setter
-@TableName("user_activity")
-@ApiModel(value = "UserActivity对象", description = "用户交易活动汇总表（用于用户排行榜、个人交易面板、鲸鱼榜等）")
-public class UserActivity implements Serializable {
+@TableName("user_activity_stats")
+@ApiModel(value = "UserActivityStats对象", description = "用户交易活动汇总表（用于用户排行榜、个人交易面板、鲸鱼榜等）")
+public class UserActivityStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

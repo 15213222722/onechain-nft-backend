@@ -13,4 +13,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface INftLikesService extends IService<NftLikes> {
 
+    /**
+     * toggle like
+     * @param userId
+     * @param nftObjectId
+     * @return true if liked, false if unliked
+     */
+    boolean toggleLike(Integer userId, String nftObjectId);
 }

@@ -1,6 +1,6 @@
 package io.xone.chain.onenft.mapper;
 
-import io.xone.chain.onenft.entity.UserActivity;
+import io.xone.chain.onenft.entity.UserActivityStats;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-28
+ * @since 2026-02-10
  */
-public interface UserActivityMapper extends BaseMapper<UserActivity> {
+public interface UserActivityStatsMapper extends BaseMapper<UserActivityStats> {
 
 }

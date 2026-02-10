@@ -1,6 +1,6 @@
 package io.xone.chain.onenft.service;
 
-import io.xone.chain.onenft.entity.UserActivity;
+import io.xone.chain.onenft.entity.UserActivityStats;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-28
+ * @since 2026-02-10
  */
-public interface IUserActivityService extends IService<UserActivity> {
+public interface IUserActivityStatsService extends IService<UserActivityStats> {
 
 }
