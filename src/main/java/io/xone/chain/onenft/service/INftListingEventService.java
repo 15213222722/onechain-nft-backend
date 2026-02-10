@@ -14,5 +14,7 @@ import io.xone.chain.onenft.entity.NftListingEvent;
  */
 public interface INftListingEventService extends IService<NftListingEvent> {
 
+	void handleNFTListEvent(String txHash, String walletAddress, String eventType, String listingObjectId, String nftObjectId, Long listingPrice, Long timestampMs);
+
 
 }

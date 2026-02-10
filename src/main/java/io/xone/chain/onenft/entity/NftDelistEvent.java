@@ -17,7 +17,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-26
+ * @since 2026-02-10
  */
 @Getter
 @Setter
@@ -31,28 +31,28 @@ public class NftDelistEvent implements Serializable {
     private Integer id;
 
     @ApiModelProperty("钱包地址")
-    @TableField("walletAddress")
+    @TableField("wallet_address")
     private String walletAddress;
 
     @ApiModelProperty("nft对象id")
-    @TableField("nftObjectId")
+    @TableField("nft_object_id")
     private String nftObjectId;
 
     @ApiModelProperty("市场id")
-    @TableField("kioskId")
-    private String kioskId;
+    @TableField("listing_object_id")
+    private String listingObjectId;
 
     @ApiModelProperty("hash")
-    @TableField("txHash")
+    @TableField("tx_hash")
     private String txHash;
 
     @ApiModelProperty("事件type")
-    @TableField("eventType")
+    @TableField("event_type")
     private String eventType;
 
-    @TableField("createdAt")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @TableField("updatedAt")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 }

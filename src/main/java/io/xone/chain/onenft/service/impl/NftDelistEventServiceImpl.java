@@ -34,19 +34,10 @@ public class NftDelistEventServiceImpl extends ServiceImpl<NftDelistEventMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void handleNFTDelistEvent(String txHash, String walletAddress, String eventType, String kioskId, String nftObjectId, Long timestampMs) {
+    public void handleNFTDelistEvent(String txHash, String walletAddress, String eventType, String listingObjectId, String nftObjectId, Long timestampMs) {
         // Check processed
         if (processedEventService.isProcessed(txHash, eventType)) {
             log.info("NFT Delist Event already processed: {}", txHash);
-            return;
-        }
-
-
-        // Check duplicate
-        QueryWrapper<NftDelistEvent> query = new QueryWrapper<>();
-        query.eq("txHash", txHash);
-        if (this.count(query) > 0) {
-            log.info("NFT Delist Event already exists: {}", txHash);
             return;
         }
 
@@ -54,7 +45,7 @@ public class NftDelistEventServiceImpl extends ServiceImpl<NftDelistEventMapper,
         entity.setTxHash(txHash);
         entity.setWalletAddress(walletAddress);
         entity.setEventType(eventType);
-        entity.setKioskId(kioskId);
+        entity.setListingObjectId(listingObjectId);
         entity.setNftObjectId(nftObjectId);
         if (timestampMs != null) {
             entity.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestampMs), ZoneId.systemDefault()));
@@ -62,6 +53,5 @@ public class NftDelistEventServiceImpl extends ServiceImpl<NftDelistEventMapper,
         this.save(entity);
         log.info("Saved NFTDelist event: {}", txHash);
 
-        processedEventService.markProcessed(txHash, eventType);
     }
 }

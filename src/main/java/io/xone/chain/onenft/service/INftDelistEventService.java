@@ -13,6 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface INftDelistEventService extends IService<NftDelistEvent> {
 
-    void handleNFTDelistEvent(String txHash, String walletAddress, String eventType, String kioskId, String nftObjectId, Long timestampMs);
+    void handleNFTDelistEvent(String txHash, String walletAddress, String eventType, String listingObjectId, String nftObjectId, Long timestampMs);
 
 }

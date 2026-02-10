@@ -1,12 +1,13 @@
 package io.xone.chain.onenft.entity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-26
+ * @since 2026-02-10
  */
 @Getter
 @Setter
@@ -32,32 +33,32 @@ public class NftListingEvent implements Serializable {
     private Integer id;
 
     @ApiModelProperty("钱包地址")
-    @TableField("walletAddress")
+    @TableField("wallet_address")
     private String walletAddress;
 
     @ApiModelProperty("nft对象id")
-    @TableField("nftObjectId")
+    @TableField("nft_object_id")
     private String nftObjectId;
 
     @ApiModelProperty("上架id")
-    @TableField("listing_Object_id")
+    @TableField("listing_object_id")
     private String listingObjectId;
 
     @ApiModelProperty("hash")
-    @TableField("txHash")
+    @TableField("tx_hash")
     private String txHash;
 
     @ApiModelProperty("事件type")
-    @TableField("eventType")
+    @TableField("event_type")
     private String eventType;
 
-    @TableField("createdAt")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @TableField("updatedAt")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     @ApiModelProperty("上架价格")
-    @TableField("listingPrice")
-    private long listingPrice;
+    @TableField("listing_price")
+    private Long listingPrice;
 }
