@@ -39,9 +39,9 @@ public class NftListingEvent implements Serializable {
     @TableField("nftObjectId")
     private String nftObjectId;
 
-    @ApiModelProperty("市场id")
-    @TableField("kioskId")
-    private String kioskId;
+    @ApiModelProperty("上架id")
+    @TableField("listing_Object_id")
+    private String listingObjectId;
 
     @ApiModelProperty("hash")
     @TableField("txHash")
@@ -59,5 +59,5 @@ public class NftListingEvent implements Serializable {
 
     @ApiModelProperty("上架价格")
     @TableField("listingPrice")
-    private BigDecimal listingPrice;
+    private long listingPrice;
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import io.xone.chain.onenft.entity.Listings;
+import io.xone.chain.onenft.request.ListingQueryRequest;
 import io.xone.chain.onenft.request.MyListingNftRequest;
 import io.xone.chain.onenft.resp.ListingResp;
 
@@ -25,4 +26,6 @@ public interface IListingsService extends IService<Listings> {
     void handleListingFilled(String listingObjectId);
 
     IPage<ListingResp> getMyListings(MyListingNftRequest request);
+
+	IPage<ListingResp> listingsQuery(ListingQueryRequest request);
 }

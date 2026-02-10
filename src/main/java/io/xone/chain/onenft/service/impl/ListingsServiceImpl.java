@@ -23,13 +23,15 @@ import io.onechain.OneChain;
 import io.xone.chain.onenft.common.entity.ListingNft;
 import io.xone.chain.onenft.common.service.OneChainService;
 import io.xone.chain.onenft.entity.Listings;
+import io.xone.chain.onenft.entity.NftListingEvent;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.mapper.ListingsMapper;
 import io.xone.chain.onenft.mapper.UsersMapper;
+import io.xone.chain.onenft.request.ListingQueryRequest;
 import io.xone.chain.onenft.request.MyListingNftRequest;
 import io.xone.chain.onenft.resp.ListingResp;
 import io.xone.chain.onenft.service.IListingsService;
-import io.xone.chain.onenft.service.INftsService;
+import io.xone.chain.onenft.service.INftListingEventService;
 import io.xone.chain.onenft.service.IProcessedEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,23 +50,40 @@ import lombok.extern.slf4j.Slf4j;
 public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> implements IListingsService {
 
 	private final IProcessedEventService processedEventService;
-	private final INftsService nftsService;
 	private final UsersMapper usersMapper;
 
-	private final OneChain oneChain;
+	private final INftListingEventService nftListingEventService;
 
 	private final OneChainService oneChainService;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void handleListingCreated(String txDigest, String listingObjectId, String owner, String nftObjectId,
-			String nftType, Integer listingType, Long price, String coinType, String expectedNftType, Long timestampMs) {
+			String nftType, Integer listingType, Long price, String coinType, String expectedNftType,
+			Long timestampMs) {
 		if (processedEventService.isProcessed(txDigest, "ListingCreated" + listingObjectId)) {
 			log.info("ListingCreated already processed: {}", txDigest);
 			return;
 		}
+		NftListingEvent event = new NftListingEvent();
+		event.setTxHash(txDigest);
+		event.setListingObjectId(listingObjectId);
+		event.setNftObjectId(nftObjectId);
+		event.setWalletAddress(owner);
+		event.setEventType("ListingCreated");
+		event.setListingPrice(price);
+		event.setCreatedAt(LocalDateTime.now());
+		event.setUpdatedAt(LocalDateTime.now());
+		nftListingEventService.save(event);
 
-		Listings listing = new Listings();
+		QueryWrapper<Listings> query = new QueryWrapper<>();
+		query.eq("listing_object_id", listingObjectId);
+		Listings listing = this.getOne(query);
+		if (listing != null) {
+			log.info("Listing already exists, updating: {}", listingObjectId);
+		} else {
+			listing = new Listings();
+		}
 		listing.setListingObjectId(listingObjectId);
 		listing.setOwnerAddress(owner);
 		listing.setNftObjectId(nftObjectId);
@@ -78,7 +97,7 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		if (timestampMs != null) {
 			listing.setCreatedAt(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestampMs), ZoneId.systemDefault()));
 		}
-		this.save(listing);
+		this.saveOrUpdate(listing);
 		processedEventService.markProcessed(txDigest, "ListingCreated" + listingObjectId);
 	}
 
@@ -99,12 +118,6 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			listing.setCancelTxDigest(txDigest);
 			listing.setCancelTimestampMs(timestampMs);
 			this.updateById(listing);
-
-			// Update NFT status
-			nftsService.syncNftFromChain(listing.getNftObjectId(), nft -> {
-				nft.setIsListed(false);
-				nft.setListingPrice(null);
-			});
 		}
 
 		processedEventService.markProcessed(txDigest, "ListingCancelled" + listingObjectId);
@@ -119,6 +132,7 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 
 		if (listing != null) {
 			listing.setStatus(1); // Filled
+			listing.setFilledTimestampMs(System.currentTimeMillis());
 			this.updateById(listing);
 		}
 	}
@@ -151,8 +165,38 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		log.info("Queried listing NFTs from OneChain: {}", JSONUtil.toJsonStr(queryListingNfts));
 		List<ListingResp> collect = listingPage.getRecords().stream().map(listing -> {
 			ListingResp copyProperties = BeanUtil.copyProperties(listing, ListingResp.class);
-			queryListingNfts.stream().filter(lisingNft -> lisingNft.getObjectId().equals(listing.getNftObjectId())).findFirst()
-					.ifPresent(nft -> {
+			queryListingNfts.stream().filter(lisingNft -> lisingNft.getObjectId().equals(listing.getNftObjectId()))
+					.findFirst().ifPresent(nft -> {
+						copyProperties.setListingNft(nft);
+					});
+			return copyProperties;
+		}).collect(Collectors.toList());
+		Page<ListingResp> resultPage = new Page<>(request.getCurrent(), request.getSize(), listingPage.getTotal());
+		resultPage.setRecords(collect);
+		return resultPage;
+	}
+
+	@Override
+	public IPage<ListingResp> listingsQuery(ListingQueryRequest request) {
+		Page<Listings> page = new Page<>(request.getCurrent(), request.getSize());
+		LambdaQueryWrapper<Listings> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(Listings::getStatus, 0); // ACTIVE
+		wrapper.orderByDesc(Listings::getCreatedAt);
+		IPage<Listings> listingPage = this.page(page, wrapper);
+		List<String> listingNftObjectIds = listingPage.getRecords().stream().map(Listings::getListingObjectId)
+				.collect(Collectors.toList());
+		if (CollUtil.isEmpty(listingNftObjectIds)) {
+			Page<ListingResp> resultPage = new Page<>(request.getCurrent(), request.getSize(), listingPage.getTotal());
+			resultPage.setRecords(List.of());
+			return resultPage;
+
+		}
+		List<ListingNft> queryListingNfts = oneChainService.queryMyListingNfts(listingNftObjectIds);
+		log.info("Queried listing NFTs from OneChain: {}", JSONUtil.toJsonStr(queryListingNfts));
+		List<ListingResp> collect = listingPage.getRecords().stream().map(listing -> {
+			ListingResp copyProperties = BeanUtil.copyProperties(listing, ListingResp.class);
+			queryListingNfts.stream().filter(lisingNft -> lisingNft.getObjectId().equals(listing.getNftObjectId()))
+					.findFirst().ifPresent(nft -> {
 						copyProperties.setListingNft(nft);
 					});
 			return copyProperties;

@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.xone.chain.onenft.entity.NftPlacedEvent;
 import io.xone.chain.onenft.mapper.NftPlacedEventMapper;
 import io.xone.chain.onenft.service.INftPlacedEventService;
-import io.xone.chain.onenft.service.INftsService;
 import io.xone.chain.onenft.service.IProcessedEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class NftPlacedEventServiceImpl extends ServiceImpl<NftPlacedEventMapper, NftPlacedEvent>
 		implements INftPlacedEventService {
 
-	private final INftsService nftsService;
-
 	private final IProcessedEventService processedEventService;
 
 	@Override
@@ -45,13 +42,6 @@ public class NftPlacedEventServiceImpl extends ServiceImpl<NftPlacedEventMapper,
             log.info("Event already processed: {}", txHash);
             return;
         }
-        
-		// Update NFT using common service
-        nftsService.syncNftFromChain(nftObjectId, nft -> {
-            nft.setKioskId(kioskId);
-            nft.setIsListed(false);
-            nft.setOwnerAddress(walletAddress);
-        });
 
 		// Check duplicate
 		QueryWrapper<NftPlacedEvent> query = new QueryWrapper<>();

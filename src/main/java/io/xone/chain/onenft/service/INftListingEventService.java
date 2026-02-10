@@ -1,8 +1,8 @@
 package io.xone.chain.onenft.service;
 
-import io.xone.chain.onenft.entity.NftListingEvent;
 import com.baomidou.mybatisplus.extension.service.IService;
-import java.math.BigDecimal;
+
+import io.xone.chain.onenft.entity.NftListingEvent;
 
 /**
  * <p>
@@ -14,6 +14,5 @@ import java.math.BigDecimal;
  */
 public interface INftListingEventService extends IService<NftListingEvent> {
 
-    void handleNFTListingEvent(String txHash, String walletAddress, String eventType, String kioskId, String nftObjectId, BigDecimal price, Long timestampMs);
 
 }

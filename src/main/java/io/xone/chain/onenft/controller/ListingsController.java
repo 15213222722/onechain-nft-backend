@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import io.xone.chain.onenft.common.Result;
+import io.xone.chain.onenft.request.ListingQueryRequest;
 import io.xone.chain.onenft.request.MyListingNftRequest;
 import io.xone.chain.onenft.resp.ListingResp;
 import io.xone.chain.onenft.service.IListingsService;
@@ -33,4 +34,14 @@ public class ListingsController {
 	public Result<IPage<ListingResp>> getMyListings(@Validated @RequestBody MyListingNftRequest request) {
 		return Result.success(listingsService.getMyListings(request));
 	}
+	
+	@PostMapping("/query")
+	public Result<IPage<ListingResp>> query(@Validated @RequestBody ListingQueryRequest request) {
+		return Result.success(listingsService.listingsQuery(request));
+	}
+	
+	
+	
+	
+	
 }

@@ -11,10 +11,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import io.xone.chain.onenft.entity.NftTakenEvent;
-import io.xone.chain.onenft.entity.Nfts;
 import io.xone.chain.onenft.mapper.NftTakenEventMapper;
 import io.xone.chain.onenft.service.INftTakenEventService;
-import io.xone.chain.onenft.service.INftsService;
 import io.xone.chain.onenft.service.IProcessedEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class NftTakenEventServiceImpl extends ServiceImpl<NftTakenEventMapper, NftTakenEvent> implements INftTakenEventService {
 
-    private final INftsService nftsService;
     
     private final IProcessedEventService processedEventService;
 
@@ -45,12 +42,6 @@ public class NftTakenEventServiceImpl extends ServiceImpl<NftTakenEventMapper, N
             return;
         }
 
-    	// Delete NFT when taken
-        QueryWrapper<Nfts> nftQuery = new QueryWrapper<>();
-        nftQuery.eq("objectId", nftObjectId);
-        nftsService.remove(nftQuery);
-        log.info("Removed NFT from market (Taken): {}", nftObjectId);
-        
         // Check duplicate
         QueryWrapper<NftTakenEvent> query = new QueryWrapper<>();
         query.eq("txHash", txHash);

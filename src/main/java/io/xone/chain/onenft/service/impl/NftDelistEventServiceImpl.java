@@ -1,17 +1,19 @@
 package io.xone.chain.onenft.service.impl;
 
-import io.xone.chain.onenft.entity.NftDelistEvent;
-import io.xone.chain.onenft.mapper.NftDelistEventMapper;
-import io.xone.chain.onenft.service.INftDelistEventService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import io.xone.chain.onenft.service.INftsService;
-import io.xone.chain.onenft.service.IProcessedEventService;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import io.xone.chain.onenft.entity.NftDelistEvent;
+import io.xone.chain.onenft.mapper.NftDelistEventMapper;
+import io.xone.chain.onenft.service.INftDelistEventService;
+import io.xone.chain.onenft.service.IProcessedEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class NftDelistEventServiceImpl extends ServiceImpl<NftDelistEventMapper, NftDelistEvent> implements INftDelistEventService {
 
-    private final INftsService nftsService;
     private final IProcessedEventService processedEventService;
 
     @Override
@@ -40,12 +41,6 @@ public class NftDelistEventServiceImpl extends ServiceImpl<NftDelistEventMapper,
             return;
         }
 
-        // Update NFT using common service
-        nftsService.syncNftFromChain(nftObjectId, nft -> {
-            nft.setIsListed(false);
-            // Updating listing price to null
-            nft.setListingPrice(null);
-        });
 
         // Check duplicate
         QueryWrapper<NftDelistEvent> query = new QueryWrapper<>();

@@ -1,56 +1,36 @@
-package io.xone.chain.onenft;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-import java.util.Map;
-
-public class s {
-	
-	public static void main(String[] args) {
-		loadImage("https://statics.newxone.com/final/3bg.png");
-
-	}
-
-	public static byte[] loadImage(String url) {
-		try {
-			URL imageUrl = new URL(url);
-			URLConnection connection = imageUrl.openConnection();
-			connection.setConnectTimeout(5000);
-			connection.setReadTimeout(5000);
-			connection.setRequestProperty("User-Agent", "Java/1.8.0_401");			
-		 
-			System.out.println("--- Request Headers ---");
-			Map<String, List<String>> requestProperties = connection.getRequestProperties();
-			for (Map.Entry<String, List<String>> entry : requestProperties.entrySet()) {
-				System.out.println("Key: " + entry.getKey() + " ,Value: " + entry.getValue());
-			}
-
-			System.out.println("--- Response Headers ---");
-			java.util.Map<String, java.util.List<String>> headerFields = connection.getHeaderFields();
-			System.out.println(headerFields);
-			for (java.util.Map.Entry<String, java.util.List<String>> entry : headerFields.entrySet()) {
-				System.out.println("Key: " + entry.getKey() + " ,Value: " + entry.getValue());
-			}
-//			System.out.println("Content-Type: " + connection.getContentType());
-//			headerFields.get("")
-//			headerFields.put("User-Agent", "");
-			try (InputStream inputStream = connection.getInputStream()) {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				byte[] buffer = new byte[4096];
-				int bytesRead;
-				while ((bytesRead = inputStream.read(buffer)) != -1) {
-					outputStream.write(buffer, 0, bytesRead);
-				}
-				byte[] ret = outputStream.toByteArray();
-				return ret;
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to load image from URL: " + url, e);
-		}
-	}
-
-}
+//ListingCard {
+//  listing_id: string
+//  listing_type: "SALE" | "SWAP"
+//  status: "ACTIVE"
+//
+//  // NFT
+//  nft: {
+//    id: string
+//    type: string
+//    name: string
+//    image_url: string
+//    collection_name: string
+//    attributes: Attribute[]
+//  }
+//
+//  // Trade
+//  price?: number
+//  coin_type?: string
+//  expected_nft_type?: string
+//
+//  // Seller
+//  owner: {
+//    address: string
+//    short: string
+//  }
+//
+//  // Market
+//  created_at: number
+//  time_since: string
+//  floor_price?: number
+//  is_verified_collection?: boolean
+//
+//  // UX
+//  is_own_listing: boolean
+//  is_affordable: boolean
+//}
