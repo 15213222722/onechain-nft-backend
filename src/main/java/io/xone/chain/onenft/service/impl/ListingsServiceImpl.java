@@ -23,7 +23,6 @@ import cn.hutool.json.JSONUtil;
 import io.xone.chain.onenft.common.entity.ListingNft;
 import io.xone.chain.onenft.common.service.OneChainService;
 import io.xone.chain.onenft.entity.Listings;
-import io.xone.chain.onenft.entity.NftListingEvent;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
 import io.xone.chain.onenft.enums.ActivityTypeEnum;
@@ -74,19 +73,8 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			return;
 		}
 		
-		nftListingEventService.handleNFTListEvent(txDigest, owner, "ListingCancelled",
+		nftListingEventService.handleNFTListEvent(txDigest, owner, "ListingCreated",
 				listingObjectId, nftObjectId, price, timestampMs);
-
-		NftListingEvent event = new NftListingEvent();
-		event.setTxHash(txDigest);
-		event.setListingObjectId(listingObjectId);
-		event.setNftObjectId(nftObjectId);
-		event.setWalletAddress(owner);
-		event.setEventType("ListingCreated");
-		event.setListingPrice(price);
-		event.setCreatedAt(LocalDateTime.now());
-		event.setUpdatedAt(LocalDateTime.now());
-		nftListingEventService.save(event);
 
 		QueryWrapper<Listings> query = new QueryWrapper<>();
 		query.eq("listing_object_id", listingObjectId);

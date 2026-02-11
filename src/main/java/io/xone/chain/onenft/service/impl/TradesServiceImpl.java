@@ -16,6 +16,8 @@ import io.xone.chain.onenft.enums.ActivityTypeEnum;
 import io.xone.chain.onenft.event.ActivityEvent;
 import io.xone.chain.onenft.mapper.TradesMapper;
 import io.xone.chain.onenft.service.IListingsService;
+import io.xone.chain.onenft.service.INftSaleFilledEventService;
+import io.xone.chain.onenft.service.INftSwapFilledEventService;
 import io.xone.chain.onenft.service.IProcessedEventService;
 import io.xone.chain.onenft.service.ITradesService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,8 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
 
     private final IProcessedEventService processedEventService;
     private final IListingsService listingsService;
+    private final INftSaleFilledEventService nftSaleFilledEventService;
+    private final INftSwapFilledEventService nftSawpFilledEventService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -66,6 +70,8 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
 
         // Update listing status
         listingsService.handleListingFilled(listingObjectId);
+        
+        nftSaleFilledEventService.handleNFTSaleFilledEvent(txDigest, listingObjectId, taker, lister, nftId, paymentAmount, feeAmount, sellerAmount, coinType, timestampMs);
 
         processedEventService.markProcessed(txDigest, "ListingSaleFilled" + listingObjectId);
 
@@ -111,14 +117,17 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
 
         processedEventService.markProcessed(txDigest, "ListingSwapFilled" + listingObjectId);
 
+        nftSawpFilledEventService.handleNFTSwapFilledEvent(txDigest, listingObjectId, taker, lister, nftIdOut, nftIdIn, timestampMs);	
+        
         eventPublisher.publishEvent(ActivityEvent.builder(this)
                 .activityType(ActivityTypeEnum.NFT_SWAPPED)
                 .actorAddress(lister)
                 .targetType(ActivityTargetTypeEnum.NFT)
                 .targetId(nftIdOut) // NFT going out
-                .addMetadata("buyer", taker)
-                .addMetadata("swappedWith", nftIdIn)
-                .addMetadata("description", String.format("Swap: %s <-> %s", nftIdOut, nftIdIn))
+                .addMetadata("taker", taker)
+                .addMetadata("lister", lister)
+                .addMetadata("nftIdOut", nftIdOut)
+                .addMetadata("nftIdIn", nftIdIn)
                 .txDigest(txDigest)
                 .occurredAt(timestampMs)
                 .build());
