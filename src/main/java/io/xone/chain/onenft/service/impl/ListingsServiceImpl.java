@@ -72,9 +72,9 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			log.info("ListingCreated already processed: {}", txDigest);
 			return;
 		}
-		
-		nftListingEventService.handleNFTListEvent(txDigest, owner, "ListingCreated",
-				listingObjectId, nftObjectId, price, timestampMs);
+
+		nftListingEventService.handleNFTListEvent(txDigest, owner, "ListingCreated", listingObjectId, nftObjectId,
+				price, timestampMs);
 
 		QueryWrapper<Listings> query = new QueryWrapper<>();
 		query.eq("listing_object_id", listingObjectId);
@@ -104,6 +104,8 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		eventPublisher.publishEvent(ActivityEvent.builder(this).activityType(ActivityTypeEnum.NFT_LISTED)
 				.actorAddress(owner).targetType(ActivityTargetTypeEnum.NFT).targetId(nftObjectId).txDigest(txDigest)
 				.addMetadata("price", price).addMetadata("listing_object_id", listingObjectId)
+				.addMetadata("name",
+						StrUtil.isNotBlank(listing.getCollectionName()) ? listing.getCollectionName() : listingObjectId)
 				.addMetadata("coin_type", coinType).addMetadata("expected_nft_type", expectedNftType)
 				.occurredAt(timestampMs).build());
 	}
@@ -122,13 +124,15 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 			listing.setStatus(2); // Cancelled
 			// We might want to clear price or set to invalid? No, keep history.
 			this.updateById(listing);
-			
+
 			nftDelistEventService.handleNFTDelistEvent(txDigest, listing.getOwnerAddress(), "ListingCancelled",
 					listingObjectId, listing.getNftObjectId(), timestampMs);
 
 			eventPublisher.publishEvent(ActivityEvent.builder(this).activityType(ActivityTypeEnum.NFT_UNLISTED)
 					.actorAddress(listing.getOwnerAddress()).targetType(ActivityTargetTypeEnum.NFT)
 					.targetId(listing.getNftObjectId()).addMetadata("listing_object_id", listingObjectId)
+					.addMetadata("name", StrUtil.isNotBlank(listing.getCollectionName()) ? listing.getCollectionName()
+							: listingObjectId)
 					.txDigest(txDigest).occurredAt(timestampMs).build());
 		} else {
 			log.warn("Listing cancelled but not found in DB: {}", listingObjectId);
@@ -195,7 +199,31 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		Page<Listings> page = new Page<>(request.getCurrent(), request.getSize());
 		LambdaQueryWrapper<Listings> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(Listings::getStatus, 0); // ACTIVE
-		wrapper.orderByDesc(Listings::getCreatedAt);
+
+		if (StrUtil.isNotBlank(request.getSearchKey())) {
+			String key = request.getSearchKey();
+			wrapper.and(w -> w.eq(Listings::getNftObjectId, key).or().eq(Listings::getListingObjectId, key).or()
+					.eq(Listings::getOwnerAddress, key).or()
+					// Since we don't have NFT name in db, we use collectionName or nftType for
+					// partial match
+					.like(Listings::getCollectionName, key));
+		}
+
+		if (StrUtil.isNotBlank(request.getSort())) {
+			String sort = request.getSort();
+			boolean isAsc = sort.endsWith("_asc");
+			if (sort.startsWith("price")) {
+				wrapper.orderBy(true, isAsc, Listings::getPrice);
+			} else if (sort.startsWith("time")) {
+				// User asked for "update time", usually created or updated
+				wrapper.orderBy(true, isAsc, Listings::getUpdatedAt);
+			} else {
+				wrapper.orderByDesc(Listings::getUpdatedAt);
+			}
+		} else {
+			wrapper.orderByDesc(Listings::getUpdatedAt);
+		}
+
 		IPage<Listings> listingPage = this.page(page, wrapper);
 		List<String> listingNftObjectIds = listingPage.getRecords().stream().map(Listings::getListingObjectId)
 				.collect(Collectors.toList());
@@ -218,5 +246,12 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		Page<ListingResp> resultPage = new Page<>(request.getCurrent(), request.getSize(), listingPage.getTotal());
 		resultPage.setRecords(collect);
 		return resultPage;
+	}
+
+	@Override
+	public Listings queryListingByListingObjectId(String listingObjectId) {
+		QueryWrapper<Listings> query = new QueryWrapper<>();
+		query.eq("listing_object_id", listingObjectId);
+		return this.getOne(query);
 	}
 }

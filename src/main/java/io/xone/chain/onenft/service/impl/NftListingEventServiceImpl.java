@@ -35,7 +35,7 @@ public class NftListingEventServiceImpl extends ServiceImpl<NftListingEventMappe
 			String nftObjectId, Long listingPrice, Long timestampMs) {
         // Check duplicate
         QueryWrapper<NftListingEvent> query = new QueryWrapper<>();
-        query.eq("txHash", txHash);
+        query.eq("tx_hash", txHash);
         if (this.count(query) > 0) {
             log.info("NFT Listing Event already exists: {}", txHash);
             return;

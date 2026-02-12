@@ -30,7 +30,7 @@ public class ListingsController {
 
 	private final IListingsService listingsService;
 
-	@PostMapping("/nfts")
+	@PostMapping("/getListingsByAddress")
 	public Result<IPage<ListingResp>> getMyListings(@Validated @RequestBody MyListingNftRequest request) {
 		return Result.success(listingsService.getMyListings(request));
 	}

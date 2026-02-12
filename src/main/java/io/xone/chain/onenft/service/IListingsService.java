@@ -28,4 +28,6 @@ public interface IListingsService extends IService<Listings> {
     IPage<ListingResp> getMyListings(MyListingNftRequest request);
 
 	IPage<ListingResp> listingsQuery(ListingQueryRequest request);
+
+	Listings queryListingByListingObjectId(String listingObjectId);
 }

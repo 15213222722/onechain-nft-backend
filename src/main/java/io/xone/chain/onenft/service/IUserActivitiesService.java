@@ -2,6 +2,9 @@ package io.xone.chain.onenft.service;
 
 import io.xone.chain.onenft.entity.UserActivities;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.xone.chain.onenft.request.UserActivityQueryRequest;
+import io.xone.chain.onenft.resp.UserActivityResp;
 
 /**
  * <p>
@@ -13,4 +16,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserActivitiesService extends IService<UserActivities> {
 
+    /**
+     * Query user activities with pagination
+     * @param request
+     * @return
+     */
+    IPage<UserActivityResp> queryUserActivities(UserActivityQueryRequest request);
 }

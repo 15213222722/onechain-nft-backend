@@ -44,4 +44,6 @@ public interface IUsersService extends IService<Users> {
      * @return UserResp
      */
 	UserResp getUserInfo(UserInfoRequest request);
+
+	Users queryUserNameByAddress(String actorAddress);
 }

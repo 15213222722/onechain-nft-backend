@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import cn.hutool.core.util.StrUtil;
+import io.xone.chain.onenft.entity.Listings;
 import io.xone.chain.onenft.entity.Trades;
 import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
 import io.xone.chain.onenft.enums.ActivityTypeEnum;
@@ -75,16 +77,33 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
 
         processedEventService.markProcessed(txDigest, "ListingSaleFilled" + listingObjectId);
 
+        Listings listing = listingsService.queryListingByListingObjectId(listingObjectId);
+        
         eventPublisher.publishEvent(ActivityEvent.builder(this)
                 .activityType(ActivityTypeEnum.NFT_SOLD)
                 .actorAddress(lister) // Seller
                 .targetType(ActivityTargetTypeEnum.NFT)
                 .targetId(nftId)
+                .addMetadata("name", listing != null && StrUtil.isNotBlank(listing.getCollectionName())
+						? listing.getCollectionName()
+						: listingObjectId)
                 .addMetadata("buyer", taker)
+                .addMetadata("price", paymentAmount)
+                .txDigest(txDigest)
+                .addMetadata("description", String.format("Sale filled for listing %s", listingObjectId))
+                .occurredAt(timestampMs)
+                .build());
+
+        eventPublisher.publishEvent(ActivityEvent.builder(this)
+                .activityType(ActivityTypeEnum.NFT_BOUGHT)
+                .actorAddress(taker) // Buyer
+                .targetType(ActivityTargetTypeEnum.NFT)
+                .targetId(nftId)
                 .addMetadata("seller", lister)
                 .addMetadata("price", paymentAmount)
-                .addMetadata("listing_object_id", listingObjectId)
                 .txDigest(txDigest)
+                .addMetadata("name", StrUtil.isNotBlank(listing.getCollectionName()) ? listing.getCollectionName() : listingObjectId)
+                .addMetadata("description", String.format("User bought NFT %s", nftId))
                 .occurredAt(timestampMs)
                 .build());
     }

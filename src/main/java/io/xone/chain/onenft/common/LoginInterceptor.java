@@ -11,7 +11,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!StpUtil.isLogin()) {
+    	if (!StpUtil.isLogin()) {
             response.setContentType("application/json;charset=utf-8");
             response.getWriter().print(JSONUtil.toJsonStr(Result.failed(ErrorCode.UNAUTHORIZED)));
             return false;

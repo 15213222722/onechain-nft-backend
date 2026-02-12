@@ -10,5 +10,8 @@ import lombok.EqualsAndHashCode;
 public class ListingQueryRequest extends PageRequest {
 	
 	private String walletAddress;
-
+	
+	private String searchKey;
+	
+	private String sort; // price_asc, price_desc, time_asc, time_desc
 }

@@ -36,6 +36,10 @@ public class UserResp {
 
 	@ApiModelProperty("twitter")
 	private String twitter;
+	
+	@ApiModelProperty("UserStatsResp")
+	private UserStatsResp stats;
+
 
 	private LocalDateTime createdAt;
 

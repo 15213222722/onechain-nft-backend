@@ -112,4 +112,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		}
 		return BeanUtil.copyProperties(user, UserResp.class);
 	}
+
+	@Override
+	public Users queryUserNameByAddress(String walletAddress) {
+		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Users::getWalletAddress, walletAddress);
+		return this.getOne(queryWrapper);
+	}
 }
