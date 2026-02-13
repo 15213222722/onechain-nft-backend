@@ -15,9 +15,48 @@ public interface IUserFollowsService extends IService<UserFollows> {
 
     /**
      * toggle follow
-     * @param followerId
-     * @param followingId
+     * @param followerAddress
+     * @param followingAddress
      * @return true if followed, false if unfollowed
      */
-    boolean toggleFollow(Integer followerId, Integer followingId);
+    boolean toggleFollow(String followerAddress, String followingAddress);
+
+    /**
+     * Follow a user
+     * @param followerAddress
+     * @param followingAddress
+     * @return true if successful, throws exception if already following
+     */
+    boolean follow(String followerAddress, String followingAddress);
+
+    /**
+     * Unfollow a user
+     * @param followerAddress
+     * @param followingAddress
+     * @return true if successful
+     */
+    boolean unfollow(String followerAddress, String followingAddress);
+
+    /**
+     * get followings
+     * @param walletAddress
+     * @param page
+     * @return
+     */
+    com.baomidou.mybatisplus.extension.plugins.pagination.Page<io.xone.chain.onenft.resp.UserResp> getFollowings(String walletAddress, com.baomidou.mybatisplus.extension.plugins.pagination.Page<UserFollows> page);
+
+    /**
+     * get followers
+     * @param walletAddress
+     * @param page
+     * @return
+     */
+    com.baomidou.mybatisplus.extension.plugins.pagination.Page<io.xone.chain.onenft.resp.UserResp> getFollowers(String walletAddress, com.baomidou.mybatisplus.extension.plugins.pagination.Page<UserFollows> page);
+
+    /**
+     * check if is following
+     * @param followingAddress
+     * @return
+     */
+    boolean isMyFollowing(String followingAddress);
 }

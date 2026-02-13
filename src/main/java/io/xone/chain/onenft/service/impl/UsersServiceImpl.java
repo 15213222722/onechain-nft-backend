@@ -11,13 +11,24 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import io.xone.chain.onenft.common.ApiException;
+import io.xone.chain.onenft.entity.Collections;
+import io.xone.chain.onenft.entity.UserActivities;
+import io.xone.chain.onenft.entity.UserActivityStats;
+import io.xone.chain.onenft.entity.UserFollows;
 import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.enums.ActivityTypeEnum;
+import io.xone.chain.onenft.mapper.CollectionsMapper;
+import io.xone.chain.onenft.mapper.UserActivitiesMapper;
+import io.xone.chain.onenft.mapper.UserActivityStatsMapper;
+import io.xone.chain.onenft.mapper.UserFollowsMapper;
 import io.xone.chain.onenft.mapper.UsersMapper;
 import io.xone.chain.onenft.request.UserInfoRequest;
 import io.xone.chain.onenft.request.UserLoginRequest;
 import io.xone.chain.onenft.request.UserUpdateRequest;
 import io.xone.chain.onenft.resp.UserResp;
+import io.xone.chain.onenft.resp.UserStatsResp;
 import io.xone.chain.onenft.service.IUsersService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -30,7 +41,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements IUsersService {
+
+	private final UserFollowsMapper userFollowsMapper;
+	private final CollectionsMapper collectionsMapper;
+	private final UserActivityStatsMapper userActivityStatsMapper;
+	private final UserActivitiesMapper userActivitiesMapper;
 
 	@Override
 	public String login(UserLoginRequest request) {
@@ -99,11 +116,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		if (user == null) {
 			return null;
 		}
-		return BeanUtil.copyProperties(user, UserResp.class);
+		UserResp userInfoNoStats = BeanUtil.copyProperties(user, UserResp.class);
+		buildUserRespWithStats(userInfoNoStats);
+		return userInfoNoStats;
 	}
 
-	@Override
-	public UserResp getUserInfo(UserInfoRequest request) {
+	private UserResp getUserInfoNoStats(UserInfoRequest request) {
 		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(Users::getWalletAddress, request.getWalletAddress());
 		Users user = this.getOne(queryWrapper);
@@ -114,9 +132,65 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 	}
 
 	@Override
+	public UserResp getUserInfo(UserInfoRequest request) {
+		UserResp userInfoNoStats = getUserInfoNoStats(request);
+		if (userInfoNoStats == null) {
+			return null;
+		}
+		buildUserRespWithStats(userInfoNoStats);
+		return userInfoNoStats;
+	}
+
+	private void buildUserRespWithStats(UserResp userInfoNoStats) {
+
+		// Fill Stats
+		UserStatsResp stats = new UserStatsResp();
+
+		// 1. Follows
+		Integer followersCount = userFollowsMapper.selectCount(
+				new LambdaQueryWrapper<UserFollows>().eq(UserFollows::getFollowingWalletAddress, userInfoNoStats.getWalletAddress()));
+		stats.setFollowersCount(followersCount);
+
+		Integer followingCount = userFollowsMapper.selectCount(
+				new LambdaQueryWrapper<UserFollows>().eq(UserFollows::getFollowerWalletAddress, userInfoNoStats.getWalletAddress()));
+		stats.setFollowingCount(followingCount);
+
+		// 2. Collected (Count items in Collections table for this user)
+		Integer collectedCount = collectionsMapper
+				.selectCount(new LambdaQueryWrapper<Collections>().eq(Collections::getUserId, userInfoNoStats.getId()));
+		stats.setCollectedCount(collectedCount);
+
+		// 3. Created (Count NFT_MINTED activities)
+		Integer createdCount = userActivitiesMapper.selectCount(new LambdaQueryWrapper<UserActivities>()
+				.eq(UserActivities::getActorAddress, userInfoNoStats.getWalletAddress())
+				.eq(UserActivities::getActivityType, ActivityTypeEnum.NFT_MINTED.getValue()));
+		stats.setCreatedCount(createdCount);
+
+		// 4. Volume
+		UserActivityStats activityStats = userActivityStatsMapper.selectById(userInfoNoStats.getWalletAddress());
+		if (activityStats != null && activityStats.getTotalVolumeRaw() != null) {
+			stats.setTotalVolume(activityStats.getTotalVolumeRaw());
+		} else {
+			stats.setTotalVolume(0L);
+		}
+		userInfoNoStats.setStats(stats);
+	}
+
+	@Override
 	public Users queryUserNameByAddress(String walletAddress) {
 		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(Users::getWalletAddress, walletAddress);
 		return this.getOne(queryWrapper);
+	}
+
+	@Override
+	public boolean isValidUser(String walletAddress) {
+		LambdaQueryWrapper<Users> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(Users::getWalletAddress, walletAddress);
+		Users user = this.getOne(queryWrapper);
+		if (user == null) {
+			return false;
+		}
+		return true;
 	}
 }

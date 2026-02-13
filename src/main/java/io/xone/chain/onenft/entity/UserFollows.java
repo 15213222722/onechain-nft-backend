@@ -13,16 +13,16 @@ import lombok.Setter;
 
 /**
  * <p>
- * 关注表
+ * 用户关注表
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-20
+ * @since 2026-02-13
  */
 @Getter
 @Setter
 @TableName("user_follows")
-@ApiModel(value = "UserFollows对象", description = "关注表")
+@ApiModel(value = "UserFollows对象", description = "用户关注表")
 public class UserFollows implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,17 +30,17 @@ public class UserFollows implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty("用户id")
-    @TableField("followerUserId")
-    private Integer followerUserId;
+    @ApiModelProperty("用户地址")
+    @TableField("follower_wallet_address")
+    private String followerWalletAddress;
 
-    @ApiModelProperty("被关注用户id")
-    @TableField("followingId")
-    private Integer followingId;
+    @ApiModelProperty("被关注用户地址")
+    @TableField("following_wallet_address")
+    private String followingWalletAddress;
 
-    @TableField("createdAt")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @TableField("updatedAt")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 }

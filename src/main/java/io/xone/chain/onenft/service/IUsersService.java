@@ -46,4 +46,8 @@ public interface IUsersService extends IService<Users> {
 	UserResp getUserInfo(UserInfoRequest request);
 
 	Users queryUserNameByAddress(String actorAddress);
+	
+	boolean isValidUser(String walletAddress);
+	
+	
 }
