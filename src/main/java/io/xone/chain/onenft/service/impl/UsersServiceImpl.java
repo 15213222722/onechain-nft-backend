@@ -11,15 +11,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import io.xone.chain.onenft.common.ApiException;
-import io.xone.chain.onenft.entity.Collections;
 import io.xone.chain.onenft.entity.UserActivities;
 import io.xone.chain.onenft.entity.UserActivityStats;
+import io.xone.chain.onenft.entity.UserCollections;
 import io.xone.chain.onenft.entity.UserFollows;
 import io.xone.chain.onenft.entity.Users;
 import io.xone.chain.onenft.enums.ActivityTypeEnum;
-import io.xone.chain.onenft.mapper.CollectionsMapper;
 import io.xone.chain.onenft.mapper.UserActivitiesMapper;
 import io.xone.chain.onenft.mapper.UserActivityStatsMapper;
+import io.xone.chain.onenft.mapper.UserCollectionsMapper;
 import io.xone.chain.onenft.mapper.UserFollowsMapper;
 import io.xone.chain.onenft.mapper.UsersMapper;
 import io.xone.chain.onenft.request.UserInfoRequest;
@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements IUsersService {
 
 	private final UserFollowsMapper userFollowsMapper;
-	private final CollectionsMapper collectionsMapper;
+	private final UserCollectionsMapper userCollectionsMapper;
 	private final UserActivityStatsMapper userActivityStatsMapper;
 	private final UserActivitiesMapper userActivitiesMapper;
 
@@ -156,8 +156,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 		stats.setFollowingCount(followingCount);
 
 		// 2. Collected (Count items in Collections table for this user)
-		Integer collectedCount = collectionsMapper
-				.selectCount(new LambdaQueryWrapper<Collections>().eq(Collections::getUserId, userInfoNoStats.getId()));
+		Integer collectedCount = userCollectionsMapper
+				.selectCount(new LambdaQueryWrapper<UserCollections>().eq(UserCollections::getWalletAddress, userInfoNoStats.getWalletAddress()));
 		stats.setCollectedCount(collectedCount);
 
 		// 3. Created (Count NFT_MINTED activities)

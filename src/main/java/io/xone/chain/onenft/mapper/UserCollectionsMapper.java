@@ -1,6 +1,6 @@
 package io.xone.chain.onenft.mapper;
 
-import io.xone.chain.onenft.entity.Collections;
+import io.xone.chain.onenft.entity.UserCollections;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-20
+ * @since 2026-02-19
  */
-public interface CollectionsMapper extends BaseMapper<Collections> {
+public interface UserCollectionsMapper extends BaseMapper<UserCollections> {
 
 }

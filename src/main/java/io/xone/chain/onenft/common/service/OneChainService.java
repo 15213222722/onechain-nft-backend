@@ -149,4 +149,44 @@ public class OneChainService {
 		}
 	}
 
+	public List<ListingNft> getListedNfts(List<String> nftObjectIds) {
+		try {
+			log.info("Fetching NFT objects from OneChain for IDs:{}", nftObjectIds);
+			List<OneChainObjectResponse> list = oneChain.multiGetObjects(nftObjectIds, new ObjectDataOptions()).get();
+			log.info("Fetched NFT objects from OneChain:{}", list);
+			List<ListingNft> nfts = new java.util.ArrayList<>();
+
+			list.stream().map(OneChainObjectResponse::getData)
+					.forEach(new java.util.function.Consumer<OneChainObjectData>() {
+						@Override
+						public void accept(OneChainObjectData data) {
+							if (data == null) {
+								return;
+							}
+							ListingNft formatNft = formatNft(data);
+							nfts.add(formatNft);
+						}
+					});
+			return nfts;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public ListingNft queryNftDetail(String nftObjectId) {
+		try {
+			log.info("Fetching NFT object from OneChain for ID:{}", nftObjectId);
+			OneChainObjectResponse response = oneChain.getObject(nftObjectId, new ObjectDataOptions()).get();
+			if (response != null && response.getData() != null) {
+				return formatNft(response.getData());
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Error fetching NFT detail", e);
+		}
+		return null;
+	}
 }
