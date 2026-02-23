@@ -42,4 +42,11 @@ public interface IUserCollectionsService extends IService<UserCollections> {
      * @return
      */
     boolean isCollected(String walletAddress, String nftObjectId);
+
+    /**
+     * Get collection ranking (Top 100)
+     * @param request
+     * @return
+     */
+    java.util.List<io.xone.chain.onenft.resp.UserCollectionRankResp> getCollectionRanking(io.xone.chain.onenft.request.UserCollectionRankRequest request);
 }

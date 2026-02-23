@@ -1,5 +1,7 @@
 package io.xone.chain.onenft.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +11,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.xone.chain.onenft.common.entity.Result;
 import io.xone.chain.onenft.request.UserCollectionQueryRequest;
+import io.xone.chain.onenft.request.UserCollectionRankRequest;
 import io.xone.chain.onenft.request.UserCollectionRequest;
+import io.xone.chain.onenft.resp.UserCollectionRankResp;
 import io.xone.chain.onenft.resp.UserCollectionResp;
 import io.xone.chain.onenft.service.IUserCollectionsService;
 import io.xone.chain.onenft.service.IUsersService;
@@ -56,5 +60,10 @@ public class UserCollectionsController {
     public Result<Boolean> isCollected(@RequestBody UserCollectionRequest request) {
         String currentWalletAddress = usersService.getCurrentUser().getWalletAddress();
         return Result.success(userCollectionsService.isCollected(currentWalletAddress, request.getNftObjectId()));
+    }
+    
+    @PostMapping("/ranking")
+    public Result<List<UserCollectionRankResp>> ranking(@RequestBody UserCollectionRankRequest request) {
+        return Result.success(userCollectionsService.getCollectionRanking(request));
     }
 }

@@ -19,4 +19,5 @@ public interface ITradesService extends IService<Trades> {
     void handleListingSwapFilled(String txDigest, String listingObjectId, String taker, String lister, 
             String nftIdOut, String nftIdIn, Long timestampMs);
 
+    com.baomidou.mybatisplus.extension.plugins.pagination.Page<io.xone.chain.onenft.resp.TradeResp> queryTrades(io.xone.chain.onenft.request.TradeQueryRequest request);
 }

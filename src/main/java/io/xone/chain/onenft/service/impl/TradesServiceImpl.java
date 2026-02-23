@@ -22,6 +22,25 @@ import io.xone.chain.onenft.service.INftSaleFilledEventService;
 import io.xone.chain.onenft.service.INftSwapFilledEventService;
 import io.xone.chain.onenft.service.IProcessedEventService;
 import io.xone.chain.onenft.service.ITradesService;
+import io.xone.chain.onenft.service.IUsersService;
+import io.xone.chain.onenft.common.service.OneChainService;
+import io.xone.chain.onenft.request.TradeQueryRequest;
+import io.xone.chain.onenft.resp.TradeResp;
+import io.xone.chain.onenft.resp.UserResp;
+import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.common.entity.ListingNft;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import org.springframework.beans.BeanUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +62,8 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
     private final INftSaleFilledEventService nftSaleFilledEventService;
     private final INftSwapFilledEventService nftSawpFilledEventService;
     private final ApplicationEventPublisher eventPublisher;
+    private final IUsersService usersService;
+    private final OneChainService oneChainService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -150,5 +171,127 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
                 .txDigest(txDigest)
                 .occurredAt(timestampMs)
                 .build());
+    }
+
+    @Override
+    public Page<TradeResp> queryTrades(TradeQueryRequest request) {
+        Page<Trades> page = new Page<>(request.getCurrent(), request.getSize());
+        LambdaQueryWrapper<Trades> query = new LambdaQueryWrapper<>();
+        
+        long now = System.currentTimeMillis();
+        long startTime = 0;
+        
+        if (StrUtil.isNotBlank(request.getTimeRange())) {
+            switch (request.getTimeRange().toUpperCase()) {
+                case "24H":
+                    startTime = now - (24 * 60 * 60 * 1000L);
+                    break;
+                case "7D":
+                    startTime = now - (7 * 24 * 60 * 60 * 1000L);
+                    break;
+                case "30D":
+                    startTime = now - (30L * 24 * 60 * 60 * 1000L);
+                    break;
+                case "ALL":
+                default:
+                    startTime = 0;
+                    break;
+            }
+        }
+        
+        if (startTime > 0) {
+            query.ge(Trades::getTimestampMs, startTime);
+        }
+        
+        if (StrUtil.isNotBlank(request.getNftObjectId())) {
+            query.eq(Trades::getNftObjectIdOut, request.getNftObjectId());
+        }
+        
+        // If collectionSlug is provided, we'd need to join with collection table or filter by existing field.
+        // Assuming collectionSlug is stored in Trades or we can filter by it.
+        // Trades entity has `collection_slug`? Let's check Trades.java again.
+        if (StrUtil.isNotBlank(request.getCollectionSlug())) {
+             query.eq(Trades::getCollectionSlug, request.getCollectionSlug());
+        }
+        
+        query.orderByDesc(Trades::getTimestampMs);
+        
+        Page<Trades> pResult = page(page, query);
+        Page<TradeResp> respPage = new Page<>();
+        BeanUtils.copyProperties(pResult, respPage, "records");
+        
+        if (pResult.getRecords().isEmpty()) {
+            return respPage;
+        }
+        
+        Set<String> userAddresses = new java.util.HashSet<>();
+        Set<String> nftObjectIds = new java.util.HashSet<>();
+        
+        for (Trades trade : pResult.getRecords()) {
+            if (StrUtil.isNotBlank(trade.getTakerAddress())) userAddresses.add(trade.getTakerAddress());
+            if (StrUtil.isNotBlank(trade.getListerAddress())) userAddresses.add(trade.getListerAddress());
+            if (StrUtil.isNotBlank(trade.getNftObjectIdOut())) nftObjectIds.add(trade.getNftObjectIdOut());
+        }
+        
+        Map<String, UserResp> userMap = new java.util.HashMap<>();
+        if (!userAddresses.isEmpty()) {
+            LambdaQueryWrapper<Users> userQuery = new LambdaQueryWrapper<>();
+            userQuery.in(Users::getWalletAddress, userAddresses);
+            List<Users> users = usersService.list(userQuery);
+            for (Users u : users) {
+                UserResp r = new UserResp();
+                BeanUtils.copyProperties(u, r);
+                userMap.put(u.getWalletAddress(), r);
+            }
+        }
+        
+        Map<String, ListingNft> nftMap = new java.util.HashMap<>();
+        if (!nftObjectIds.isEmpty()) {
+            List<ListingNft> nfts = oneChainService.getListedNfts(new ArrayList<>(nftObjectIds));
+            if (nfts != null) {
+                for (ListingNft nft : nfts) {
+                    nftMap.put(nft.getObjectId(), nft);
+                }
+            }
+        }
+        
+        List<TradeResp> records = new ArrayList<>();
+        for (Trades trade : pResult.getRecords()) {
+            TradeResp resp = new TradeResp();
+            resp.setId(trade.getId());
+            resp.setPrice(trade.getPaymentAmount());
+            resp.setCoinType(trade.getCoinType());
+            resp.setTimestamp(trade.getTimestampMs());
+            resp.setTradeType(trade.getTradeType()); // Assuming tradeType is compatible or need conversion
+            
+            if (StrUtil.isNotBlank(trade.getTakerAddress())) {
+                resp.setBuyer(userMap.getOrDefault(trade.getTakerAddress(), createUnknownUser(trade.getTakerAddress())));
+            }
+            if (StrUtil.isNotBlank(trade.getListerAddress())) {
+                resp.setSeller(userMap.getOrDefault(trade.getListerAddress(), createUnknownUser(trade.getListerAddress())));
+            }
+            
+            if (StrUtil.isNotBlank(trade.getNftObjectIdOut())) {
+                resp.setNftInfo(nftMap.get(trade.getNftObjectIdOut()));
+                if (resp.getNftInfo() == null) {
+                    // Create minimal info if fetch failed
+                    ListingNft minimal = new ListingNft();
+                    minimal.setObjectId(trade.getNftObjectIdOut());
+                    resp.setNftInfo(minimal);
+                }
+            }
+            
+            records.add(resp);
+        }
+        
+        respPage.setRecords(records);
+        return respPage;
+    }
+    
+    private UserResp createUnknownUser(String address) {
+        UserResp u = new UserResp();
+        u.setWalletAddress(address);
+        u.setName("Unknown");
+        return u;
     }
 }

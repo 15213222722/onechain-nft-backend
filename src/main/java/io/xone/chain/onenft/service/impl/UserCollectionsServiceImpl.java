@@ -6,6 +6,7 @@ import io.xone.chain.onenft.entity.Listings;
 import io.xone.chain.onenft.entity.UserCollections;
 import io.xone.chain.onenft.mapper.UserCollectionsMapper;
 import io.xone.chain.onenft.request.UserCollectionQueryRequest;
+import io.xone.chain.onenft.request.UserCollectionRankRequest;
 import io.xone.chain.onenft.resp.UserCollectionResp;
 import io.xone.chain.onenft.service.IListingsService;
 import io.xone.chain.onenft.service.IUserCollectionsService;
@@ -154,5 +155,28 @@ public class UserCollectionsServiceImpl extends ServiceImpl<UserCollectionsMappe
         query.eq(UserCollections::getWalletAddress, walletAddress);
         query.eq(UserCollections::getNftObjectId, nftObjectId);
         return count(query) > 0;
+    }
+
+    @Override
+    public java.util.List<io.xone.chain.onenft.resp.UserCollectionRankResp> getCollectionRanking(io.xone.chain.onenft.request.UserCollectionRankRequest request) {
+        LocalDateTime startTime = null;
+        if (request.getTimeRange() != null) {
+            switch (request.getTimeRange().toUpperCase()) {
+                case "24H":
+                    startTime = LocalDateTime.now().minusHours(24);
+                    break;
+                case "7D":
+                    startTime = LocalDateTime.now().minusDays(7);
+                    break;
+                case "30D":
+                    startTime = LocalDateTime.now().minusDays(30);
+                    break;
+                case "ALL":
+                default:
+                    startTime = null;
+                    break;
+            }
+        }
+        return baseMapper.getCollectionRanking(startTime);
     }
 }

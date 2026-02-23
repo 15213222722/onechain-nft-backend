@@ -129,7 +129,8 @@ public class MarketPlaceEventListener implements CommandLineRunner {
         Long paymentAmount = getLong(data, "payment_amount");
         Long feeAmount = getLong(data, "fee_amount");
         Long sellerAmount = getLong(data, "seller_amount");
-        String coinType = getString(data, "coin_type");
+        String coinType = getJsonObject(data, "coin_type").getStr("name");
+        
         Long timestamp = event.getTimestampMs().longValue();
         
         tradesService.handleListingSaleFilled(event.getId().getTxDigest(), listingId, taker, lister, nftId, paymentAmount, feeAmount, sellerAmount, coinType, timestamp);
