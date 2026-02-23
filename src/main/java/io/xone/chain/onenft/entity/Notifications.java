@@ -13,16 +13,16 @@ import lombok.Setter;
 
 /**
  * <p>
- * 系统通知表
+ * 通知主表：定义通知内容与基础信息
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-01-20
+ * @since 2026-02-23
  */
 @Getter
 @Setter
 @TableName("notifications")
-@ApiModel(value = "Notifications对象", description = "系统通知表")
+@ApiModel(value = "Notifications对象", description = "通知主表：定义通知内容与基础信息")
 public class Notifications implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,37 +30,45 @@ public class Notifications implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty("用户id")
-    @TableField("userId")
-    private Integer userId;
-
-    @ApiModelProperty("通知类型,bid_received:有人出价竞拍你的 NFT;bid_outbid:你被超越出价;auction_ending:拍卖即将结束;auction_won:你赢得了拍卖;auction_sold:你的拍卖已售出;offer_received:有人出价;offer_received:你的出价已被接受;sale_complete:你的 NFT 已售出;follow_new:有人关注了你;price_drop:关注的 NFT 价格下降;system:系统通知")
+    @ApiModelProperty("通知类型，如 NFT_SOLD / USER_FOLLOWED / SYSTEM_ANNOUNCEMENT")
     @TableField("type")
     private String type;
 
-    @ApiModelProperty("标题")
+    @ApiModelProperty("通知来源类型：USER（用户行为）或 SYSTEM（系统通知）")
+    @TableField("source_type")
+    private String sourceType;
+
+    @ApiModelProperty("触发通知的用户地址（系统通知可为空）")
+    @TableField("actor_address")
+    private String actorAddress;
+
+    @ApiModelProperty("通知关联对象类型：NFT / LISTING / USER")
+    @TableField("target_type")
+    private String targetType;
+
+    @ApiModelProperty("通知关联对象ID，如 nft_id / listing_id / user_address")
+    @TableField("target_id")
+    private String targetId;
+
+    @ApiModelProperty("通知标题（前端可直接展示）")
     @TableField("title")
     private String title;
 
-    @ApiModelProperty("消息内容")
-    @TableField("message")
-    private String message;
+    @ApiModelProperty("通知正文内容")
+    @TableField("content")
+    private String content;
 
-    @ApiModelProperty("nft对象id")
-    @TableField("nftObjectId")
-    private String nftObjectId;
+    @ApiModelProperty("扩展信息JSON，如价格、币种等附加数据")
+    @TableField("metadata")
+    private String metadata;
 
-    @ApiModelProperty("关联跳转地址")
-    @TableField("actionUrl")
-    private String actionUrl;
+    @ApiModelProperty("优先级：0普通 1重要 2紧急")
+    @TableField("priority")
+    private Byte priority;
 
-    @ApiModelProperty("是否已读")
-    @TableField("isRead")
-    private Boolean isRead;
-
-    @TableField("createdAt")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @TableField("updatedAt")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 }
