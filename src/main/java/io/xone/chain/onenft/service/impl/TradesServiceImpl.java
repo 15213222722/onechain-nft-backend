@@ -63,6 +63,18 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
     private final OneChainService oneChainService;
     private final INotificationsService notificationsService;
 
+    private String formatAddress(String address) {
+        if (StrUtil.isBlank(address) || address.length() < 10) return address;
+        return address.substring(0, 6) + "..." + address.substring(address.length() - 4);
+    }
+    
+    private String formatNftName(String nftId) {
+        ListingNft nft = oneChainService.queryNftDetail(nftId);
+        String name = (nft != null && nft.getName() != null) ? nft.getName() : "Unknown";
+        String shortId = (nftId.length() > 4) ? nftId.substring(nftId.length() - 4) : nftId;
+        return name + " #" + shortId;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleListingSaleFilled(String txDigest, String listingObjectId, String taker, String lister, String nftId,
@@ -125,13 +137,19 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
                 .addMetadata("description", String.format("User bought NFT %s", nftId))
                 .occurredAt(timestampMs)
                 .build());
-//        String arg0 = 
-        // Notifications
-        notificationsService.createNotification(NotificationType.NFT_SOLD, taker, lister, 
-                "NFT", nftId, nftId, taker, paymentAmount, coinType);
         
+        // Notifications
+        String nftName = formatNftName(nftId);
+        String takerAddrFormatted = formatAddress(taker);
+        String listerAddrFormatted = formatAddress(lister);
+
+        // Notify Seller (lister): Your NFT {0} sold to {1} for {2} {3}
+        notificationsService.createNotification(NotificationType.NFT_SOLD, taker, lister, 
+                "NFT", nftId, nftName, takerAddrFormatted, paymentAmount/1000000000, coinType.split("::")[2]);
+        
+        // Notify Buyer (taker): You bought NFT {0} from {1} for {2} {3}
         notificationsService.createNotification(NotificationType.NFT_BOUGHT, lister, taker, 
-                "NFT", nftId, nftId, lister, paymentAmount, coinType);
+                "NFT", nftId, nftName, listerAddrFormatted, paymentAmount/1000000000, coinType.split("::")[2]);
     }
 
     @Override
@@ -178,13 +196,18 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
                 .build());
         
         // Notifications
-        // Lister notification: Swapped nftIdOut with taker
+        String nftOutName = formatNftName(nftIdOut);
+        String nftInName = formatNftName(nftIdIn);
+        String takerAddrFormatted = formatAddress(taker);
+        String listerAddrFormatted = formatAddress(lister);
+
+        // Lister notification: Swapped NFT {0} with {1} (Counterparty)
         notificationsService.createNotification(NotificationType.NFT_SWAPPED, taker, lister, 
-                "NFT", nftIdOut, nftIdOut, taker);
+                "NFT", nftIdOut, nftOutName, takerAddrFormatted);
         
-        // Taker notification: Swapped nftIdIn with lister
+        // Taker notification: Swapped NFT {0} with {1} (Counterparty)
         notificationsService.createNotification(NotificationType.NFT_SWAPPED, lister, taker, 
-                "NFT", nftIdIn, nftIdIn, lister);
+                "NFT", nftIdIn, nftInName, listerAddrFormatted);
 
     }
 
