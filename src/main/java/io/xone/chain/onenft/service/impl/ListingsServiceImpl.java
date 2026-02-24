@@ -234,7 +234,6 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 
 		}
 		List<ListingNft> queryListingNfts = oneChainService.queryMyListingNfts(listingNftObjectIds);
-		log.info("Queried listing NFTs from OneChain: {}", JSONUtil.toJsonStr(queryListingNfts));
 		List<ListingResp> collect = listingPage.getRecords().stream().map(listing -> {
 			ListingResp copyProperties = BeanUtil.copyProperties(listing, ListingResp.class);
 			queryListingNfts.stream().filter(lisingNft -> lisingNft.getObjectId().equals(listing.getNftObjectId()))

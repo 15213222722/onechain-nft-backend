@@ -3,44 +3,41 @@ package io.xone.chain.onenft.service.impl;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
-import cn.hutool.core.util.StrUtil;
-import io.xone.chain.onenft.entity.Listings;
-import io.xone.chain.onenft.entity.Trades;
-import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
-import io.xone.chain.onenft.enums.ActivityTypeEnum;
-import io.xone.chain.onenft.event.ActivityEvent;
-import io.xone.chain.onenft.mapper.TradesMapper;
-import io.xone.chain.onenft.service.IListingsService;
-import io.xone.chain.onenft.service.INftSaleFilledEventService;
-import io.xone.chain.onenft.service.INftSwapFilledEventService;
-import io.xone.chain.onenft.service.IProcessedEventService;
-import io.xone.chain.onenft.service.ITradesService;
-import io.xone.chain.onenft.service.IUsersService;
-import io.xone.chain.onenft.common.service.OneChainService;
-import io.xone.chain.onenft.request.TradeQueryRequest;
-import io.xone.chain.onenft.resp.TradeResp;
-import io.xone.chain.onenft.resp.UserResp;
-import io.xone.chain.onenft.entity.Users;
-import io.xone.chain.onenft.common.entity.ListingNft;
-
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-
-import org.springframework.beans.BeanUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import cn.hutool.core.util.StrUtil;
+import io.xone.chain.onenft.common.entity.ListingNft;
+import io.xone.chain.onenft.common.service.OneChainService;
+import io.xone.chain.onenft.entity.Listings;
+import io.xone.chain.onenft.entity.Trades;
+import io.xone.chain.onenft.entity.Users;
+import io.xone.chain.onenft.enums.ActivityTargetTypeEnum;
+import io.xone.chain.onenft.enums.ActivityTypeEnum;
+import io.xone.chain.onenft.enums.NotificationType;
+import io.xone.chain.onenft.event.ActivityEvent;
+import io.xone.chain.onenft.mapper.TradesMapper;
+import io.xone.chain.onenft.request.TradeQueryRequest;
+import io.xone.chain.onenft.resp.TradeResp;
+import io.xone.chain.onenft.resp.UserResp;
+import io.xone.chain.onenft.service.IListingsService;
+import io.xone.chain.onenft.service.INftSaleFilledEventService;
+import io.xone.chain.onenft.service.INftSwapFilledEventService;
+import io.xone.chain.onenft.service.INotificationsService;
+import io.xone.chain.onenft.service.IProcessedEventService;
+import io.xone.chain.onenft.service.ITradesService;
+import io.xone.chain.onenft.service.IUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +61,7 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
     private final ApplicationEventPublisher eventPublisher;
     private final IUsersService usersService;
     private final OneChainService oneChainService;
+    private final INotificationsService notificationsService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -127,6 +125,13 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
                 .addMetadata("description", String.format("User bought NFT %s", nftId))
                 .occurredAt(timestampMs)
                 .build());
+//        String arg0 = 
+        // Notifications
+        notificationsService.createNotification(NotificationType.NFT_SOLD, taker, lister, 
+                "NFT", nftId, nftId, taker, paymentAmount, coinType);
+        
+        notificationsService.createNotification(NotificationType.NFT_BOUGHT, lister, taker, 
+                "NFT", nftId, nftId, lister, paymentAmount, coinType);
     }
 
     @Override
@@ -171,6 +176,16 @@ public class TradesServiceImpl extends ServiceImpl<TradesMapper, Trades> impleme
                 .txDigest(txDigest)
                 .occurredAt(timestampMs)
                 .build());
+        
+        // Notifications
+        // Lister notification: Swapped nftIdOut with taker
+        notificationsService.createNotification(NotificationType.NFT_SWAPPED, taker, lister, 
+                "NFT", nftIdOut, nftIdOut, taker);
+        
+        // Taker notification: Swapped nftIdIn with lister
+        notificationsService.createNotification(NotificationType.NFT_SWAPPED, lister, taker, 
+                "NFT", nftIdIn, nftIdIn, lister);
+
     }
 
     @Override

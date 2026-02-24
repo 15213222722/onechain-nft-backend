@@ -105,10 +105,12 @@ public class OneChainService {
 	}
 
 	public ListingNft formatNft(OneChainObjectData data) {
-		log.info("Listing NFT:", data);
+		log.info("Listing NFT:{}", data);
 		ListingNft nft = new ListingNft();
 		nft.setObjectId(data.getObjectId());
 		nft.setNftType(data.getType());
+		nft.setOwnerAddress(JSONUtil.parseObj(data.getOwner()).getStr("AddressOwner"));
+		nft.setMintTxHash(data.getDigest());
 		if (data.getContent() instanceof OneChainParsedData.MoveObject) {
 			OneChainParsedData.MoveObject moveObject = (OneChainParsedData.MoveObject) data.getContent();
 			Map<String, ?> fields = moveObject.getFields();
@@ -181,6 +183,7 @@ public class OneChainService {
 		try {
 			log.info("Fetching NFT object from OneChain for ID:{}", nftObjectId);
 			OneChainObjectResponse response = oneChain.getObject(nftObjectId, new ObjectDataOptions()).get();
+			log.info(nftObjectId + " fetched from OneChain:{}", JSONUtil.toJsonStr(response));
 			if (response != null && response.getData() != null) {
 				return formatNft(response.getData());
 			}

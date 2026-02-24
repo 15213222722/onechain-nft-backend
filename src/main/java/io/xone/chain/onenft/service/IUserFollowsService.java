@@ -14,14 +14,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IUserFollowsService extends IService<UserFollows> {
 
     /**
-     * toggle follow
-     * @param followerAddress
-     * @param followingAddress
-     * @return true if followed, false if unfollowed
-     */
-    boolean toggleFollow(String followerAddress, String followingAddress);
-
-    /**
      * Follow a user
      * @param followerAddress
      * @param followingAddress

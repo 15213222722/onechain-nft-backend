@@ -18,6 +18,8 @@ import io.xone.chain.onenft.event.ActivityEvent;
 import io.xone.chain.onenft.mapper.UserFollowsMapper;
 import io.xone.chain.onenft.service.IUserFollowsService;
 import io.xone.chain.onenft.service.IUsersService;
+import io.xone.chain.onenft.service.INotificationsService;
+import io.xone.chain.onenft.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -34,35 +36,7 @@ public class UserFollowsServiceImpl extends ServiceImpl<UserFollowsMapper, UserF
 
 	private final ApplicationEventPublisher eventPublisher;
 	private final IUsersService usersService;
-
-	@Override
-	public boolean toggleFollow(String followerAddress, String followingAddress) {
-		LambdaQueryWrapper<UserFollows> query = new LambdaQueryWrapper<>();
-		query.eq(UserFollows::getFollowerWalletAddress, followerAddress).eq(UserFollows::getFollowingWalletAddress,
-				followingAddress);
-
-		long count = count(query);
-		if (count > 0) {
-			remove(query);
-			return false;
-		} else {
-			UserFollows follow = new UserFollows();
-			follow.setFollowerWalletAddress(followerAddress);
-			follow.setFollowingWalletAddress(followingAddress);
-			follow.setCreatedAt(LocalDateTime.now());
-			follow.setUpdatedAt(LocalDateTime.now());
-			boolean success = save(follow);
-
-			if (success) {
-				eventPublisher.publishEvent(ActivityEvent.builder(this).activityType(ActivityTypeEnum.USER_FOLLOWED)
-						.actorAddress(followerAddress).targetType(ActivityTargetTypeEnum.USER)
-						.targetId(followingAddress)
-						.addMetadata("description", "User " + followerAddress + " followed user " + followingAddress)
-						.build());
-			}
-			return true;
-		}
-	}
+    private final INotificationsService notificationsService;
 
 	@Override
 	public boolean follow(String followerAddress, String followingAddress) {
@@ -88,6 +62,9 @@ public class UserFollowsServiceImpl extends ServiceImpl<UserFollowsMapper, UserF
 					.targetId(followingAddress)
 					.addMetadata("description", "User " + followerAddress + " followed user " + followingAddress)
 					.build());
+            String arg0 = followerAddress.substring(0, 6) + "..." + followerAddress.substring(followerAddress.length() - 4);
+            notificationsService.createNotification(NotificationType.USER_FOLLOW, followerAddress, followingAddress, 
+                    "USER", followerAddress, arg0);
 		}
 		return true;
 	}

@@ -1,28 +1,33 @@
 package io.xone.chain.onenft.service.impl;
 
-import io.xone.chain.onenft.common.entity.ListingNft;
-import io.xone.chain.onenft.common.service.OneChainService;
-import io.xone.chain.onenft.entity.Listings;
-import io.xone.chain.onenft.entity.UserCollections;
-import io.xone.chain.onenft.mapper.UserCollectionsMapper;
-import io.xone.chain.onenft.request.UserCollectionQueryRequest;
-import io.xone.chain.onenft.request.UserCollectionRankRequest;
-import io.xone.chain.onenft.resp.UserCollectionResp;
-import io.xone.chain.onenft.service.IListingsService;
-import io.xone.chain.onenft.service.IUserCollectionsService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import cn.hutool.core.collection.CollUtil;
+import io.xone.chain.onenft.common.entity.ListingNft;
+import io.xone.chain.onenft.common.service.OneChainService;
+import io.xone.chain.onenft.entity.Listings;
+import io.xone.chain.onenft.entity.UserCollections;
+import io.xone.chain.onenft.enums.NotificationType;
+import io.xone.chain.onenft.mapper.UserCollectionsMapper;
+import io.xone.chain.onenft.request.UserCollectionQueryRequest;
+import io.xone.chain.onenft.resp.UserCollectionResp;
+import io.xone.chain.onenft.service.IListingsService;
+import io.xone.chain.onenft.service.INotificationsService;
+import io.xone.chain.onenft.service.IUserCollectionsService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -32,12 +37,14 @@ import java.util.stream.Collectors;
  * @author GitHub Copilot
  * @since 2026-02-19
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserCollectionsServiceImpl extends ServiceImpl<UserCollectionsMapper, UserCollections> implements IUserCollectionsService {
 
     private final IListingsService listingsService;
     private final OneChainService oneChainService;
+    private final INotificationsService notificationsService;
 
     @Override
     public Page<UserCollectionResp> getUserCollections(UserCollectionQueryRequest request) {
@@ -138,7 +145,34 @@ public class UserCollectionsServiceImpl extends ServiceImpl<UserCollectionsMappe
         collection.setNftObjectId(nftObjectId);
         collection.setCreatedAt(LocalDateTime.now());
         collection.setUpdatedAt(LocalDateTime.now());
-        return save(collection);
+        boolean success = save(collection);
+        if (success) {
+        	LambdaQueryWrapper<Listings> listingQuery = new LambdaQueryWrapper<>();
+            listingQuery.eq(Listings::getNftObjectId, nftObjectId);
+            listingQuery.eq(Listings::getStatus, 0); 
+            List<Listings> listings = listingsService.list(listingQuery);
+        	String ownerAddress = null;
+        	String name = null;
+        	if(CollUtil.isNotEmpty(listings)) {
+        		ownerAddress = listings.get(0).getOwnerAddress();
+        		name = oneChainService.queryMyListingNfts(Arrays.asList(listings.get(0).getNftObjectId())).get(0).getName();
+        	}
+             ListingNft nft = oneChainService.queryNftDetail(nftObjectId);
+             if(nft != null) {
+            	 ownerAddress = nft.getOwnerAddress();
+            	 name = nft.getName();
+             }
+             log.info("Fetched NFT details for {}, owner: {}", nftObjectId, nft != null ? nft.getOwnerAddress() : "null");
+             if (ownerAddress != null && !ownerAddress.equals(walletAddress)) {
+                 String nftName = (name != null) ? name : "Unknown";
+                 String shortId = nftObjectId.substring(nftObjectId.length() - 4);
+                 String arg0 = nftName + " #" + shortId;
+                 String arg1 = walletAddress.substring(0, 6) + "..." + walletAddress.substring(walletAddress.length() - 4);
+                 notificationsService.createNotification(NotificationType.NFT_COLLECTED, 
+                         walletAddress, ownerAddress, "NFT", nftObjectId, arg0, arg1);
+             }
+        }
+        return success;
     }
 
     @Override
