@@ -3,7 +3,9 @@ package io.xone.chain.onenft.service.impl;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -91,6 +93,7 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		listing.setStatus(0); // Active
 		listing.setCreateTxDigest(txDigest);
 		listing.setNftType(nftType);
+		listing.setCollectionName(nftType.split("::")[2]);
 		listing.setPrice(price);
 		listing.setCoinType(coinType);
 		listing.setExpectedNftType(expectedNftType);
@@ -252,5 +255,29 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		QueryWrapper<Listings> query = new QueryWrapper<>();
 		query.eq("listing_object_id", listingObjectId);
 		return this.getOne(query);
+	}
+
+	@Override
+	public List<ListingResp> getHotListings() {
+		List<Listings> hotListings = baseMapper.getHotListings();
+		if (CollUtil.isEmpty(hotListings)) {
+			return new ArrayList<>();
+		}
+
+		List<String> listingObjectIds = hotListings.stream().map(Listings::getListingObjectId)
+				.collect(Collectors.toList());
+
+		List<ListingNft> nftDetails = oneChainService.queryMyListingNfts(listingObjectIds);
+
+		Map<String, ListingNft> nftMap = nftDetails.stream()
+				.collect(Collectors.toMap(ListingNft::getObjectId, nft -> nft, (k1, k2) -> k1));
+
+		return hotListings.stream().map(listing -> {
+			ListingResp resp = BeanUtil.copyProperties(listing, ListingResp.class);
+			if (nftMap.containsKey(listing.getNftObjectId())) {
+				resp.setListingNft(nftMap.get(listing.getNftObjectId()));
+			}
+			return resp;
+		}).collect(Collectors.toList());
 	}
 }

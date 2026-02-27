@@ -1,5 +1,7 @@
 package io.xone.chain.onenft.controller;
 
+import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +32,11 @@ public class ListingsController {
 
 	private final IListingsService listingsService;
 
+    @PostMapping("/hot")
+    public Result<List<ListingResp>> getHotListings() {
+        return Result.success(listingsService.getHotListings());
+    }
+
 	@PostMapping("/getListingsByAddress")
 	public Result<IPage<ListingResp>> getMyListings(@Validated @RequestBody MyListingNftRequest request) {
 		return Result.success(listingsService.getMyListings(request));
@@ -39,9 +46,4 @@ public class ListingsController {
 	public Result<IPage<ListingResp>> query(@Validated @RequestBody ListingQueryRequest request) {
 		return Result.success(listingsService.listingsQuery(request));
 	}
-	
-	
-	
-	
-	
 }

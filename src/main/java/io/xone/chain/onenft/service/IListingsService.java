@@ -23,11 +23,36 @@ public interface IListingsService extends IService<Listings> {
     
     void handleListingCancelled(String txDigest, String listingObjectId, Long timestampMs);
 
+    /**
+     * Get listings list
+     * @param request
+     * @return
+     */
+    IPage<ListingResp> listingsQuery(ListingQueryRequest request);
+    
+    /**
+     * Handle listing filled
+     * @param listingObjectId
+     */
     void handleListingFilled(String listingObjectId);
+    
+    /**
+     * Query listing by listingObjectId
+     * @param listingObjectId
+     * @return
+     */
+    Listings queryListingByListingObjectId(String listingObjectId);
 
+    /**
+     * Get hot listings (top 4 by trade count)
+     * @return
+     */
+     java.util.List<io.xone.chain.onenft.resp.ListingResp> getHotListings();
+     
+    /**
+     * Get my listings
+     * @param request
+     * @return
+     */
     IPage<ListingResp> getMyListings(MyListingNftRequest request);
-
-	IPage<ListingResp> listingsQuery(ListingQueryRequest request);
-
-	Listings queryListingByListingObjectId(String listingObjectId);
 }
