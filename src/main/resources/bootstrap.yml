@@ -3,6 +3,16 @@ server:
 spring:
   application:
     name: onechain-onenft
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 10s
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
   cloud:
     nacos:
       config:
