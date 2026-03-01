@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import io.xone.chain.onenft.common.Result;
+import io.xone.chain.onenft.dto.CollectionPageDTO;
+import io.xone.chain.onenft.request.CollectionPageQueryRequest;
 import io.xone.chain.onenft.request.ListingQueryRequest;
 import io.xone.chain.onenft.request.MyListingNftRequest;
 import io.xone.chain.onenft.resp.ListingResp;
+import io.xone.chain.onenft.service.ICollectionPageService;
 import io.xone.chain.onenft.service.IListingsService;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class ListingsController {
 
 	private final IListingsService listingsService;
+	private final ICollectionPageService collectionPageService;
 
     @PostMapping("/hot")
     public Result<List<ListingResp>> getHotListings() {
@@ -46,4 +50,13 @@ public class ListingsController {
 	public Result<IPage<ListingResp>> query(@Validated @RequestBody ListingQueryRequest request) {
 		return Result.success(listingsService.listingsQuery(request));
 	}
+	
+	@PostMapping("/pageCollections")
+    public Result<IPage<CollectionPageDTO>> pageCollections(@RequestBody CollectionPageQueryRequest request) {
+        return Result.success(collectionPageService.pageCollections(request));
+    }
+	
+	
+	
+	
 }

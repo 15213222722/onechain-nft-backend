@@ -198,8 +198,8 @@
 			<groupId>io.xone.chain</groupId>
 			<artifactId>onechain-sdk-java</artifactId>
 			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${onechain-sdk-java-systemPath}</systemPath>
+		<!--	<scope>system</scope>
+			<systemPath>${onechain-sdk-java-systemPath}</systemPath>-->
 		</dependency>
 		<!-- 手动加载 resources/lib/onechain-sdk-java-1.0.0.jar，无需 Maven 依赖 -->
 		<dependency>
@@ -226,6 +226,10 @@
 					<source>1.8</source>
 					<target>1.8</target>
 					<encoding>utf-8</encoding>
+					<compilerArgs>
+						<arg>-extdirs</arg>
+						<arg>${onechain-sdk-java-systemPath}</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -276,3 +280,11 @@
 
 
 </project>
+
+
+<!--mvn install:install-file \
+  -Dfile=/Users/it/Documents/gdan/sts_workspace/onechain-nft-backend/src/main/resources/lib/onechain-sdk-java-1.0.0.jar \
+  -DgroupId=io.xone.chain \
+  -DartifactId=onechain-sdk-java \
+  -Dversion=1.0.0 \
+  -Dpackaging=jar-->

@@ -1,8 +1,14 @@
 package io.xone.chain.onenft.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -10,7 +16,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
+import java.util.List;
 import java.util.Locale;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 import cn.dev33.satoken.fun.strategy.SaCorsHandleFunction;
 import cn.dev33.satoken.router.SaHttpMethod;
@@ -93,5 +105,25 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/swagger-ui/index.html",
                         "/error"
                 );
+    }
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof MappingJackson2HttpMessageConverter) {
+                ObjectMapper objectMapper = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
+                JavaTimeModule javaTimeModule = new JavaTimeModule();
+                // LocalDateTime转时间戳（毫秒）
+                javaTimeModule.addSerializer(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+                    @Override
+                    public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws java.io.IOException {
+                        gen.writeNumber(value.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli());
+                    }
+                });
+                objectMapper.registerModule(javaTimeModule);
+                objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+                objectMapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+            }
+        }
     }
 }

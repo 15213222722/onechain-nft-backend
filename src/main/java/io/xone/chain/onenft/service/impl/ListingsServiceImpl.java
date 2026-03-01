@@ -94,6 +94,7 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		listing.setCreateTxDigest(txDigest);
 		listing.setNftType(nftType);
 		listing.setCollectionName(nftType.split("::")[2]);
+		listing.setCollectionSlug(nftType);
 		listing.setPrice(price);
 		listing.setCoinType(coinType);
 		listing.setExpectedNftType(expectedNftType);
