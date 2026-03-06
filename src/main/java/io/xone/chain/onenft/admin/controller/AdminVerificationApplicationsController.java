@@ -1,14 +1,18 @@
 package io.xone.chain.onenft.admin.controller;
 
-import io.xone.chain.onenft.entity.VerificationApplications;
-import io.xone.chain.onenft.enums.VerificationStatusEnum;
-import io.xone.chain.onenft.service.VerificationApplicationsService;
-import io.xone.chain.onenft.resp.VerificationApplicationResp;
-import io.xone.chain.onenft.request.AdminVerificationReviewRequest;
-import io.xone.chain.onenft.common.entity.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.xone.chain.onenft.common.entity.Result;
+import io.xone.chain.onenft.entity.VerificationApplications;
+import io.xone.chain.onenft.request.AdminVerificationReviewRequest;
+import io.xone.chain.onenft.resp.VerificationApplicationResp;
+import io.xone.chain.onenft.service.VerificationApplicationsService;
 
 /**
  * 管理员审核系列验证申请接口

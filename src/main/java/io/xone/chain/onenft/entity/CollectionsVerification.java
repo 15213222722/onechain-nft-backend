@@ -17,7 +17,7 @@ import lombok.Setter;
  * </p>
  *
  * @author GitHub Copilot
- * @since 2026-03-05
+ * @since 2026-03-06
  */
 @Getter
 @Setter
@@ -62,4 +62,44 @@ public class CollectionsVerification implements Serializable {
     @ApiModelProperty("分类：PFP/ART/GAMING/COLLECTIBLE/METAVERSE/MUSIC/FASHION/DOMAIN/UTILITY/MEME/RWA/OTHER")
     @TableField("category")
     private String category;
+
+    @ApiModelProperty("集合展示名称")
+    @TableField("collection_name")
+    private String collectionName;
+
+    @ApiModelProperty("集合 logo 图片 URL（可为 CDN/IPFS）")
+    @TableField("logo_url")
+    private String logoUrl;
+
+    @ApiModelProperty("集合描述")
+    @TableField("description")
+    private String description;
+
+    @ApiModelProperty("官网或项目页面 URL")
+    @TableField("website_url")
+    private String websiteUrl;
+
+    @ApiModelProperty("社交链接 JSON，如 {\"twitter\":\"\", \"discord\":\"\"}")
+    @TableField("social_links")
+    private String socialLinks;
+
+    @ApiModelProperty("唯一持有者数量（>=0）")
+    @TableField("unique_holders_count")
+    private Integer uniqueHoldersCount;
+
+    @ApiModelProperty("是否原创项目（申请者声明）")
+    @TableField("is_original")
+    private Boolean isOriginal;
+
+    @ApiModelProperty("证明材料，可包含图片/文档 URL 列表或说明")
+    @TableField("proof_materials")
+    private String proofMaterials;
+
+    @ApiModelProperty("联系人邮箱")
+    @TableField("contact_email")
+    private String contactEmail;
+
+    @ApiModelProperty("是否同意条款（必选）")
+    @TableField("agreed_terms")
+    private Boolean agreedTerms;
 }

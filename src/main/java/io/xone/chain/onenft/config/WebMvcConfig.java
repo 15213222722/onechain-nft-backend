@@ -95,6 +95,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(localeChangeInterceptor());
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
+                .excludePathPatterns("/admin/**") // 管理端接口不需要登录
                 .excludePathPatterns(
                         "/users/login",
                         "/doc.html",

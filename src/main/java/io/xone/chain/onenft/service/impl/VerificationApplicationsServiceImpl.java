@@ -98,6 +98,15 @@ public class VerificationApplicationsServiceImpl implements VerificationApplicat
                 cv = new CollectionsVerification();
                 cv.setCollectionType(entity.getCollectionType());
             }
+            cv.setCollectionName(entity.getCollectionName());
+            cv.setContactEmail(entity.getContactEmail());
+            cv.setLogoUrl(entity.getLogoUrl());	
+            cv.setDescription(entity.getDescription());
+            cv.setWebsiteUrl(entity.getWebsiteUrl());
+            cv.setSocialLinks(entity.getSocialLinks());
+            cv.setUniqueHoldersCount(entity.getUniqueHoldersCount());
+            cv.setIsOriginal(entity.getIsOriginal());
+            cv.setProofMaterials(entity.getProofMaterials());
             cv.setIsVerified(true);
             cv.setVerifiedAt(LocalDateTime.now());
             cv.setLastApplicationId(entity.getId());
