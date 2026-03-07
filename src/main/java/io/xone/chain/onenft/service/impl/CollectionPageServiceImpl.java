@@ -30,9 +30,9 @@ public class CollectionPageServiceImpl implements ICollectionPageService {
 
     @Override
     public IPage<CollectionPageDTO> pageCollections(CollectionPageQueryRequest request) {
-        int pageNum = request.getPageNum();
-        int pageSize = request.getPageSize();
-        int offset = (pageNum - 1) * pageSize;
+        long pageNum = request.getCurrent();
+        long pageSize = request.getSize();
+        long offset = (pageNum - 1) * pageSize;
         // 分页查询所有不同的collection_slug
         List<String> collectionSlugs = listingsMapper.selectDistinctCollectionSlugs(offset, pageSize);
         // 批量查集合验证信息

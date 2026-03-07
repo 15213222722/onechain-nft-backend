@@ -27,7 +27,7 @@ public interface ListingsMapper extends BaseMapper<Listings> {
 
     // 分页查询所有不同的collection_slug（直接传offset和limit参数，不用Page对象）
     @Select("SELECT DISTINCT collection_slug FROM listings WHERE collection_slug IS NOT NULL and status = 0 LIMIT #{offset}, #{limit}")
-    List<String> selectDistinctCollectionSlugs(@Param("offset") int offset, @Param("limit") int limit);
+    List<String> selectDistinctCollectionSlugs(@Param("offset") long offset, @Param("limit") long limit);
 
     // 查询collection名称
     @Select("SELECT collection_name FROM listings WHERE collection_slug = #{slug} and status = 0 LIMIT 1")

@@ -35,7 +35,7 @@ public enum CategoryEnum {
 	UTILITY("Utility", "实用型 / 会员", "会员卡、门票、实物兑换凭证、DAO 权益"),
 
 	// 迷因 / 社区驱动
-	MEME("Meme", "迷因 / 病毒式", "基于 meme 文化的搞笑或社区驱动系列"),
+	MEME("Meme", "迷因", "基于 meme 文化的搞笑或社区驱动系列"),
 
 	// 现实资产 / 分片
 	RWA("Real World Asset", "现实资产", "房产、艺术品、奢侈品的分片所有权"),
