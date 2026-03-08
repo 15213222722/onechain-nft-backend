@@ -48,4 +48,21 @@ public interface ListingsMapper extends BaseMapper<Listings> {
     // 查询所有不同collection_slug数量
     @Select("SELECT COUNT(DISTINCT collection_slug) FROM listings WHERE collection_slug IS NOT NULL and status = 0")
     Long countDistinctCollectionSlugs();
+
+    // 动态条件分页查询所有不同的collection_slug
+    /**
+     * 动态条件分页查询所有不同的collection_slug
+     * @param wrapper Listings表条件
+     * @param offset 分页偏移
+     * @param limit 分页大小
+     * @return collection_slug列表
+     */
+    List<String> selectDistinctCollectionSlugsByWrapper(@Param("ew") com.baomidou.mybatisplus.core.conditions.Wrapper<Listings> wrapper, @Param("offset") long offset, @Param("limit") long limit);
+
+    /**
+     * 动态条件统计所有不同的collection_slug数量
+     * @param wrapper Listings表条件
+     * @return 数量
+     */
+    Long countDistinctCollectionSlugsByWrapper(@Param("ew") com.baomidou.mybatisplus.core.conditions.Wrapper<Listings> wrapper);
 }

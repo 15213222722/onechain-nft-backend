@@ -2,4 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.xone.chain.onenft.mapper.ListingsMapper">
 
+	<select id="selectDistinctCollectionSlugsByWrapper"
+		resultType="java.lang.String"> SELECT DISTINCT collection_slug FROM
+		listings <where>
+			${ew.sqlSegment}
+		</where> LIMIT #{offset}, #{limit} </select>
+
+	<select id="countDistinctCollectionSlugsByWrapper"
+		resultType="java.lang.Long"> SELECT COUNT(DISTINCT collection_slug) FROM
+		listings <where>
+			${ew.sqlSegment}
+		</where>
+	</select>
 </mapper>
