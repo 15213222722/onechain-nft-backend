@@ -74,7 +74,12 @@ public class CollectionPageServiceImpl implements ICollectionPageService {
 		if (request.getCategoryEnum() != null) {
 			filteredSlugs = filteredSlugs.stream().filter(slug -> {
 				CollectionsVerification v = verifiedMap.get(slug);
-				return v != null && request.getCategoryEnum().name().equals(v.getCategory());
+				if (v != null && v.getCategory() != null) {
+					return request.getCategoryEnum().name().equals(v.getCategory());
+				} else {
+					// 未验证集合归为OTHER分类
+					return CategoryEnum.OTHER.equals(request.getCategoryEnum());
+				}
 			}).collect(Collectors.toList());
 		}
 		if (request.getIsOriginal() != null && !request.getIsOriginal().isEmpty()) {
