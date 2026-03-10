@@ -203,16 +203,25 @@ public class ListingsServiceImpl extends ServiceImpl<ListingsMapper, Listings> i
 		Page<Listings> page = new Page<>(request.getCurrent(), request.getSize());
 		LambdaQueryWrapper<Listings> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(Listings::getStatus, 0); // ACTIVE
-
-		if (StrUtil.isNotBlank(request.getSearchKey())) {
-			String key = request.getSearchKey();
-			wrapper.and(w -> w.eq(Listings::getNftObjectId, key).or().eq(Listings::getListingObjectId, key).or()
-					.eq(Listings::getOwnerAddress, key).or()
-					// Since we don't have NFT name in db, we use collectionName or nftType for
-					// partial match
-					.like(Listings::getCollectionName, key));
+		if (StrUtil.isNotBlank(request.getWalletAddress())) {
+			wrapper.eq(Listings::getOwnerAddress, request.getWalletAddress());
 		}
-
+		if (request.getMinPrice() != null) {
+			wrapper.ge(Listings::getPrice, request.getMinPrice());
+		}
+		if (request.getMaxPrice() != null) {
+			wrapper.le(Listings::getPrice, request.getMaxPrice());
+		}
+		if (StrUtil.isNotBlank(request.getCollectionSlug())) {
+			wrapper.eq(Listings::getCollectionSlug, request.getCollectionSlug());
+		}
+		if (StrUtil.isNotBlank(request.getNftObjectId())) {
+			wrapper.eq(Listings::getNftObjectId, request.getNftObjectId());
+		}
+		if (StrUtil.isNotBlank(request.getCoinType())) {
+			// 数据库 coinType 格式为 ...::xxx::OCT，匹配时只取OCT最后部分，忽略大小写
+			wrapper.apply("LOWER(SUBSTRING_INDEX(coin_type, '::', -1)) = {0}", request.getCoinType().toLowerCase());
+		}
 		if (StrUtil.isNotBlank(request.getSort())) {
 			String sort = request.getSort();
 			boolean isAsc = sort.endsWith("_asc");
